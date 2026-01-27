@@ -124,7 +124,7 @@
 	{/each}
 </div>
 
-<div bind:this={scrollContainer} class="mt-5 bg-slate-50 rounded-xl flex overflow-x-auto">
+<div bind:this={scrollContainer} class="mt-5 flex md:grid grid-cols-8 bg-slate-50 rounded-xl overflow-x-auto">
 	{#each selectedDay.hourlyForecasts as hour, index (hour.time)}
 		{@const isCurrent = isCurrentTimeSlot(hour.time)}
 		{@const isNextCurrent = index < 7 && isCurrentTimeSlot(selectedDay.hourlyForecasts[index + 1].time)}
@@ -138,9 +138,10 @@
 					 class="size-12 my-3" />
 			<span class="text-xl font-medium">{Math.round(hour.temperature)}°</span>
 
-			<span class="mt-5 text-slate-500 text-xs leading-3 text-center uppercase">
-				Pioggia
+			<span class="mt-5 text-slate-500 text-xs leading-4 text-center uppercase">
+				Probabilità<br>precipitazioni
 			</span>
+
 			<div class="mt-2 relative">
 				<div class="h-4 w-20 bg-sky-600/20 rounded">
 				</div>
@@ -150,6 +151,10 @@
 					{hour.rainProbability}%
 				</span>
 			</div>
+
+			<span class="mt-5 text-slate-500 text-xs leading-3 text-center uppercase">
+				Intensità
+			</span>
 
 			<div class="mt-2 flex">
 				{#each Array.from({ length: 4 }) as _, index}
@@ -163,14 +168,6 @@
 						<path d="M10 1.5 C7.5 6,4.5 9,4.5 13 a5.5 5.5 0 0 0 11 0 c0-4-3-7-5.5-11.5z" />
 					</svg>
 				{/each}
-			</div>
-
-			<span class="mt-5 text-slate-500 text-xs leading-3 text-center uppercase">
-				Neve fresca
-			</span>
-
-			<div class="mt-2 flex">
-				<span class="font-medium text-sm">{Math.round(hour.freshSnow * 100)} cm</span>
 			</div>
 
 			<span class="mt-5 text-slate-500 text-xs leading-3 text-center uppercase">
@@ -215,6 +212,14 @@
 
 			<div class="mt-2 flex">
 				<span class="font-medium text-sm">{Math.round(hour.snowLevel)} m</span>
+			</div>
+
+			<span class="mt-5 text-slate-500 text-xs leading-3 text-center uppercase">
+				Neve fresca
+			</span>
+
+			<div class="mt-2 flex">
+				<span class="font-medium text-sm">{Math.round(hour.freshSnow * 100)} cm</span>
 			</div>
 
 			<span class="mt-5 text-slate-500 text-xs leading-3 text-center uppercase">
