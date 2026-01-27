@@ -1,18 +1,20 @@
 <script lang="ts">
 	import Forecast from '../forecast.svelte';
+	import TownSearch from '../town-search.svelte';
 
 	let { data } = $props();
 	let icons = $derived(data.icons);
 	let days = $derived(data.days);
 	let town = $derived(data.town);
+	let towns = $derived(data.towns);
 
 	let selectedDayIndex = $state(0);
 	let selectedDay = $derived(days[selectedDayIndex]);
 </script>
 
 <div class="container">
-	<div class="my-12 flex items-baseline gap-4 justify-center flex-wrap">
-		<h1 class="inline-block text-5xl font-light text-center">
+	<div class="mt-12 px-4 flex items-baseline gap-4 justify-center flex-wrap">
+		<h1 class="inline-block text-5xl font-light text-center leading-[1.1]">
 			{town.name}
 		</h1>
 
@@ -20,6 +22,8 @@
 			{town.elevation} m
 		</span>
 	</div>
+
+	<TownSearch {towns} />
 
 	<Forecast {icons} {days} bind:selectedDayIndex />
 
@@ -53,19 +57,19 @@
 	{/if}
 
 	<div class="flex mt-8 bg-slate-50 px-6 py-5 rounded-xl gap-6 flex-wrap justify-center">
-		<iframe
-			src="https://meteo.report/precipitation_widget/?mode=l"
-			width="350"
-			height="560"
-			frameborder="0"
+		<iframe src="https://meteo.report/precipitation_widget/?mode=l"
+						width="350"
+						height="560"
+						frameborder="0"
+						title="Radar precipitazioni"
 		>
 		</iframe>
 
-		<iframe
-			src="https://meteo.report/model_widget/?mode=l"
-			width="350"
-			height="560"
-			frameborder="0"
+		<iframe src="https://meteo.report/model_widget/?mode=l"
+						width="350"
+						height="560"
+						frameborder="0"
+						title="Previsione precipitazioni"
 		>
 		</iframe>
 	</div>

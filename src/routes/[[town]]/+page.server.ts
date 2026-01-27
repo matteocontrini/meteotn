@@ -73,6 +73,7 @@ export const load = async ({ params }) => {
 
 	return {
 		town,
+		towns: townsCache,
 		icons: iconsCache,
 		days
 	};

@@ -81,7 +81,7 @@
 	}
 </script>
 
-<div class="mt-12 grid grid-cols-6 gap-0 md:gap-3">
+<div class="mt-10 md:mt-12 grid grid-cols-6 gap-0 md:gap-3">
 	{#each days as day, index (day.date)}
 		<button
 			type="button"
