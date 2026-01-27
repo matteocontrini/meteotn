@@ -47,34 +47,42 @@
 	}
 </script>
 
-<div class="mt-12 grid grid-cols-6 gap-3">
+<div class="mt-12 grid grid-cols-6 gap-2 md:gap-3">
 	{#each days as day, index (day.date)}
 		<button
 			type="button"
 			onclick={() => selectDay(index)}
 			aria-pressed={index === selectedDayIndex}
-			class="flex flex-col items-center p-4 rounded-xl cursor-pointer
+			class="flex flex-col items-center p-2 md:p-4 rounded-xl cursor-pointer
 				{index === selectedDayIndex
 					? 'bg-sky-100 border-2 border-sky-500 shadow-md'
 					: 'bg-slate-50 border-2 border-transparent hover:bg-slate-100 hover:border-slate-300'}">
-			<span class="font-medium">
+			<span class="font-medium text-xs md:text-base md:hidden">
+				{#if index === 0}
+					Oggi
+				{:else}
+					{formatDayOfWeek(day.date).substring(0, 3)}
+				{/if}
+			</span>
+			<span class="font-medium hidden md:block">
 				{#if index === 0}
 					oggi
 				{:else}
 					{formatDayOfWeek(day.date)}
 				{/if}
 			</span>
-			<span class="leading-6">{formatDate(day.date)}</span>
+			<span class="text-2xl font-medium leading-7 md:hidden">{day.date.getDate()}</span>
+			<span class="leading-6 hidden md:block">{formatDate(day.date)}</span>
 			<img src="https://meteo.report/images/icons/{icons[day.dailyForecast.skyCondition].day}"
 					 alt="TODO"
-					 class="size-16 my-5" />
-			<div class="flex gap-2 font-medium">
+					 class="size-12 my-2 md:size-16 md:my-5" />
+			<div class="flex flex-col md:flex-row gap-1 md:gap-2 w-full md:w-auto font-medium">
 				<div
-					class="bg-sky-800 rounded-lg text-white text-xl text-center px-2.5 py-1">
+					class="bg-sky-800 rounded md:rounded-lg text-white text-base md:text-xl font-semibold md:font-medium text-center py-0.5 md:px-2.5 md:py-1">
 					{day.dailyForecast.temperatureMinimum}°
 				</div>
 				<div
-					class="bg-red-800 rounded-lg text-white text-xl text-center px-2.5 py-1">
+					class="bg-red-800 rounded md:rounded-lg text-white text-base md:text-xl font-semibold md:font-medium text-center py-0.5 md:px-2.5 md:py-1">
 					{day.dailyForecast.temperatureMaximum}°
 				</div>
 			</div>
@@ -82,12 +90,12 @@
 	{/each}
 </div>
 
-<div class="mt-5 bg-slate-50 rounded-xl grid grid-cols-8">
+<div class="mt-5 bg-slate-50 rounded-xl flex overflow-x-auto">
 	{#each selectedDay.hourlyForecasts as hour, index (hour.time)}
 		{@const isCurrent = isCurrentTimeSlot(hour.time)}
 		{@const isNextCurrent = index < 7 && isCurrentTimeSlot(selectedDay.hourlyForecasts[index + 1].time)}
 		<div
-			class="p-4 flex flex-col items-center border-r last:border-0
+			class="p-4 flex flex-col items-center shrink-0 border-r last:border-0
             {isCurrent ? 'bg-sky-100 border-sky-200' : isNextCurrent ? 'border-sky-200' : 'border-slate-200'}">
 			<span class="font-medium">{formatHour(hour.time)}</span>
 			<img src="https://meteo.report/images/icons/{icons[hour.skyCondition].day}"

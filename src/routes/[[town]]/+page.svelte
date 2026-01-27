@@ -11,8 +11,8 @@
 </script>
 
 <div class="container">
-	<div class="my-12 flex items-baseline gap-4 justify-center">
-		<h1 class="inline-block text-5xl font-light">
+	<div class="my-12 flex items-baseline gap-4 justify-center flex-wrap">
+		<h1 class="inline-block text-5xl font-light text-center">
 			{town.name}
 		</h1>
 
