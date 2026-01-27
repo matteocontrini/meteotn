@@ -3,10 +3,11 @@
 
 	let { data } = $props();
 	let icons = $derived(data.icons);
-	let forecast = $derived(data.forecast);
-	let hourlyForecast = $derived(data.hourlyForecast);
+	let days = $derived(data.days);
 	let town = $derived(data.town);
-	let todayBulletin = $derived(data.todayBulletin);
+
+	let selectedDayIndex = $state(0);
+	let selectedDay = $derived(days[selectedDayIndex]);
 </script>
 
 <div class="container">
@@ -20,25 +21,29 @@
 		</span>
 	</div>
 
-	<Forecast {icons} {forecast} {hourlyForecast} />
+	<Forecast {icons} {days} bind:selectedDayIndex />
 
-	{#if todayBulletin}
+	{#if selectedDay.bulletin}
 		<div class="mt-5 bg-slate-50 px-6 py-5 rounded-xl">
 			<h2 class="font-medium">
-				Bollettino meteorologico (provincia di Trento)
+				Bollettino meteorologico (provincia di Trento) - {new Intl.DateTimeFormat('it-IT', {
+					day: '2-digit',
+					month: 'long',
+					year: 'numeric'
+				}).format(selectedDay.bulletin.start)}
 			</h2>
 
 			<p class="mt-2">
-				{todayBulletin.content}
+				{selectedDay.bulletin.content}
 			</p>
 
 			<p class="mt-2 text-sm text-slate-500">
 				Ultimo aggiornamento: {new Intl.DateTimeFormat('it-IT', {
-				day: '2-digit',
-				month: 'long',
-				hour: '2-digit',
-				minute: '2-digit'
-			}).format(todayBulletin.lastUpdate)}
+					day: '2-digit',
+					month: 'long',
+					hour: '2-digit',
+					minute: '2-digit'
+				}).format(selectedDay.bulletin.lastUpdate)}
 			</p>
 		</div>
 	{/if}

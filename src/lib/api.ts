@@ -92,6 +92,17 @@ export type HourlyForecast = {
 	freezingLevel: number;
 };
 
+export type DayData = {
+	date: Date;
+	dailyForecast: {
+		skyCondition: string;
+		temperatureMinimum: number;
+		temperatureMaximum: number;
+	};
+	hourlyForecasts: HourlyForecast[];
+	bulletin?: Bulletin;
+};
+
 export async function fetchForecastData(venueId: string) {
 	const url = `https://meteo.report/var/data/forecasts/${venueId}.json`;
 	const res = await fetch(url);

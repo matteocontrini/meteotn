@@ -1,15 +1,21 @@
 <script lang="ts">
-	import type { DayForecast, HourlyForecast, IconMappings } from '$lib/api';
+	import type { DayData, IconMappings } from '$lib/api';
 
 	interface Props {
 		icons: IconMappings;
-		forecast: DayForecast[];
-		hourlyForecast: HourlyForecast[];
+		days: DayData[];
+		selectedDayIndex?: number;
 	}
 
 	// TODO: icon name for "alt"
 
-	let { icons, forecast, hourlyForecast }: Props = $props();
+	let { icons, days, selectedDayIndex = $bindable(0) }: Props = $props();
+
+	let selectedDay = $derived(days[selectedDayIndex]);
+
+	function selectDay(index: number) {
+		selectedDayIndex = index;
+	}
 
 	function formatDayOfWeek(date: Date): string {
 		return new Intl.DateTimeFormat('it-IT', { weekday: 'long' }).format(date);
@@ -34,17 +40,23 @@
 	// Returns number of drops to fill (0-4)
 	function getRainfallIntensity(mm: number): number {
 		if (mm === 0) return 0;
-		if (mm <= 6) return 1;
-		if (mm <= 12) return 2;
-		if (mm <= 18) return 3;
+		if (mm <= 4) return 1;
+		if (mm <= 8) return 2;
+		if (mm <= 12) return 3;
 		return 4;
 	}
 </script>
 
 <div class="mt-12 grid grid-cols-6 gap-3">
-	{#each forecast as day, index (day.date)}
-		<div
-			class="flex flex-col items-center  p-4 rounded-xl {index === 0 ? 'bg-sky-100 border-2 border-sky-500' : 'bg-slate-50'}">
+	{#each days as day, index (day.date)}
+		<button
+			type="button"
+			onclick={() => selectDay(index)}
+			aria-pressed={index === selectedDayIndex}
+			class="flex flex-col items-center p-4 rounded-xl cursor-pointer
+				{index === selectedDayIndex
+					? 'bg-sky-100 border-2 border-sky-500 shadow-md'
+					: 'bg-slate-50 border-2 border-transparent hover:bg-slate-100 hover:border-slate-300'}">
 			<span class="font-medium">
 				{#if index === 0}
 					oggi
@@ -53,21 +65,27 @@
 				{/if}
 			</span>
 			<span class="leading-6">{formatDate(day.date)}</span>
-			<img src="https://meteo.report/images/icons/{icons[day.skyCondition].day}"
+			<img src="https://meteo.report/images/icons/{icons[day.dailyForecast.skyCondition].day}"
 					 alt="TODO"
 					 class="size-16 my-5" />
 			<div class="flex gap-2 font-medium">
-				<div class="bg-sky-800 rounded-lg text-white text-xl text-center px-2.5 py-1">{day.temperatureMinimum}°</div>
-				<div class="bg-red-800 rounded-lg text-white text-xl text-center px-2.5 py-1">{day.temperatureMaximum}°</div>
+				<div
+					class="bg-sky-800 rounded-lg text-white text-xl text-center px-2.5 py-1">
+					{day.dailyForecast.temperatureMinimum}°
+				</div>
+				<div
+					class="bg-red-800 rounded-lg text-white text-xl text-center px-2.5 py-1">
+					{day.dailyForecast.temperatureMaximum}°
+				</div>
 			</div>
-		</div>
+		</button>
 	{/each}
 </div>
 
 <div class="mt-5 bg-slate-50 rounded-xl grid grid-cols-8">
-	{#each hourlyForecast.slice(0, 8) as hour, index (hour.time)}
+	{#each selectedDay.hourlyForecasts as hour, index (hour.time)}
 		{@const isCurrent = isCurrentTimeSlot(hour.time)}
-		{@const isNextCurrent = index < 7 && isCurrentTimeSlot(hourlyForecast[index + 1].time)}
+		{@const isNextCurrent = index < 7 && isCurrentTimeSlot(selectedDay.hourlyForecasts[index + 1].time)}
 		<div
 			class="p-4 flex flex-col items-center border-r last:border-0
             {isCurrent ? 'bg-sky-100 border-sky-200' : isNextCurrent ? 'border-sky-200' : 'border-slate-200'}">
@@ -84,7 +102,8 @@
 				<div class="h-4 w-20 bg-sky-600/20 rounded">
 				</div>
 				<div class="absolute left-0 top-0 h-4 bg-sky-600 rounded" style="width: {hour.rainProbability}%"></div>
-				<span class="absolute font-medium text-xs left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sky-700">
+				<span
+					class="absolute font-medium text-xs left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 {hour.rainProbability >= 40 ? 'text-white drop-shadow' : 'text-sky-700'}">
 					{hour.rainProbability}%
 				</span>
 			</div>
