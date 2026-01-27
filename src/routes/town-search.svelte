@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import type { Town } from '$lib/api';
+	import { getRecentTowns, addRecentTown, type RecentTown } from '$lib/recent-towns';
+	import { onMount } from 'svelte';
 
 	interface Props {
 		towns: Town[];
@@ -10,6 +12,7 @@
 
 	let searchQuery = $state('');
 	let isSearchFocused = $state(false);
+	let recentTowns = $state<RecentTown[]>([]);
 	let searchResults = $derived(
 		searchQuery.trim().length >= 2
 			? towns
@@ -18,7 +21,16 @@
 			: []
 	);
 
+	onMount(() => {
+		recentTowns = getRecentTowns();
+	});
+
 	function selectTown(townSlug: string) {
+		const town = towns.find(t => t.slug === townSlug);
+		if (town) {
+			addRecentTown(town);
+			recentTowns = getRecentTowns();
+		}
 		searchQuery = '';
 		isSearchFocused = false;
 		goto(`/${townSlug}`);
@@ -80,6 +92,21 @@
 			class="absolute z-10 w-full mt-2 bg-white border-2 border-slate-200 rounded-xl shadow-lg px-4 py-3 text-slate-500 text-center"
 		>
 			Nessuna località trovata
+		</div>
+	{/if}
+
+	{#if recentTowns.length > 0}
+		<div class="mt-3 flex flex-wrap justify-center gap-2">
+			{#each recentTowns as recent (recent.slug)}
+				<button
+					type="button"
+					onclick={() => selectTown(recent.slug)}
+					class="px-2 py-1 text-sm bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors flex items-center gap-2 cursor-pointer"
+				>
+					<span class="font-medium">{recent.name}</span>
+					<span class="text-slate-500 text-xs">{recent.elevation} m</span>
+				</button>
+			{/each}
 		</div>
 	{/if}
 </div>

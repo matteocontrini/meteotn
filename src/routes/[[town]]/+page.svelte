@@ -1,6 +1,8 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Forecast from '../forecast.svelte';
 	import TownSearch from '../town-search.svelte';
+	import { addRecentTown } from '$lib/recent-towns';
 
 	let { data } = $props();
 	let icons = $derived(data.icons);
@@ -10,6 +12,12 @@
 
 	let selectedDayIndex = $state(0);
 	let selectedDay = $derived(days[selectedDayIndex]);
+
+	onMount(() => {
+		if (town) {
+			addRecentTown(town);
+		}
+	});
 </script>
 
 <div class="container">
@@ -75,7 +83,7 @@
 	</div>
 
 	<div>
-		<p class="mt-12 mb-6 text-sm text-slate-500 text-center">
+		<p class="my-12 text-sm text-slate-500 text-center">
 			I dati meteo sono forniti dalla provincia autonoma di Trento nell'ambito del
 			<a href="https://www.meteotrentino.it/previsioni/bollettino-euregio/" class="underline">progetto Euregio TINIA</a>.
 		</p>
