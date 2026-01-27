@@ -171,7 +171,7 @@
 			</div>
 
 			<span class="mt-5 text-slate-500 text-xs leading-3 text-center uppercase">
-				Ore di sole
+				Soleggiamento
 			</span>
 
 			<div class="mt-2 flex">

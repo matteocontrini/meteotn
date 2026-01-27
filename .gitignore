@@ -25,3 +25,5 @@ vite.config.ts.timestamp-*
 .idea
 .vscode
 playground/
+
+TODO.txt
