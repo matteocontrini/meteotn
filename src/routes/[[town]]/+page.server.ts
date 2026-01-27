@@ -51,12 +51,7 @@ export const load = async ({ params }) => {
 
 		// Find bulletin that applies to this day
 		const bulletin = bulletins.find((b) => {
-			// Use date-only strings to avoid timezone issues
-			const dayStr = dailyForecast.date.toISOString().split('T')[0];
-			const startStr = b.start.toISOString().split('T')[0];
-			const endStr = b.end.toISOString().split('T')[0];
-
-			return dayStr >= startStr && dayStr <= endStr;
+			return dailyForecast.date >= b.start && dailyForecast.date <= b.end;
 		});
 
 		return {
