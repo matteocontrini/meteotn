@@ -36,6 +36,21 @@
 		return now >= time && now < threeHoursLater;
 	}
 
+	// Check if time is between 18:00 and 06:00 (night time)
+	function isNightTime(date: Date): boolean {
+		const hour = date.getHours();
+		return hour >= 18 || hour < 6;
+	}
+
+	// Get the appropriate icon (night or day) based on time
+	function getIcon(skyCondition: string, date: Date): string {
+		const iconData = icons[skyCondition];
+		if (isNightTime(date) && iconData.night) {
+			return iconData.night;
+		}
+		return iconData.day;
+	}
+
 	// Rainfall intensity for 3-hour period (mm)
 	// Returns number of drops to fill (0-4)
 	function getRainfallIntensity(mm: number): number {
@@ -98,7 +113,7 @@
 			class="p-4 flex flex-col items-center shrink-0 border-r last:border-0
             {isCurrent ? 'bg-sky-100 border-sky-200' : isNextCurrent ? 'border-sky-200' : 'border-slate-200'}">
 			<span class="font-medium">{formatHour(hour.time)}</span>
-			<img src="https://meteo.report/images/icons/{icons[hour.skyCondition].day}"
+			<img src="https://meteo.report/images/icons/{getIcon(hour.skyCondition, hour.time)}"
 					 alt="TODO"
 					 class="size-12 my-3" />
 			<span class="text-xl font-medium">{Math.round(hour.temperature)}°</span>
