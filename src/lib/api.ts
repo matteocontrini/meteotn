@@ -1,14 +1,18 @@
 import { createTownSlug } from '$lib/slug';
-import { TZDate } from '@date-fns/tz';
+import { parseISO } from 'date-fns';
+import { tz } from '@date-fns/tz';
 
 const trentinoVenueId = 'fba93146-7192-4190-adab-605435fdeea1';
 
 /**
  * Parses a datetime string as Italian local time (Europe/Rome timezone).
+ * The API returns timestamps like "2026-01-27T01:00:00" which represent Italian local time.
+ * We parse them with Europe/Rome timezone to get the correct UTC moment.
+ *
+ * Example: "2026-01-27T01:00:00" (01:00 CET/UTC+1) → "2026-01-27T00:00:00Z" (00:00 UTC)
  */
 function parseLocalDateTime(dateString: string): Date {
-	// Use TZDate from date-fns v4 to parse in Europe/Rome timezone
-	return new TZDate(dateString, 'Europe/Rome');
+	return parseISO(dateString, { in: tz('Europe/Rome') });
 }
 
 type ApiTimeEntry = {
