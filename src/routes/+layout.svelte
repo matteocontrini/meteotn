@@ -8,7 +8,6 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
-	<title>meteo.tn.it</title>
 </svelte:head>
 
 {@render children()}

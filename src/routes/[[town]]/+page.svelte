@@ -20,6 +20,11 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Meteo {town.name}</title>
+	<meta name="description" content="Previsioni meteo per {town.name} ({town.elevation} m) per i prossimi 5 giorni." />
+</svelte:head>
+
 <div class="container">
 	<div class="mt-12 px-4 flex items-baseline gap-4 justify-center flex-wrap">
 		<h1 class="inline-block text-5xl font-light text-center leading-[1.1]">
