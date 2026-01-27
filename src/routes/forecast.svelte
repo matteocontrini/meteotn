@@ -73,6 +73,21 @@
 	// Rainfall intensity for 3-hour period (mm)
 	// Returns number of drops to fill (0-4)
 	function getRainfallIntensity(mm: number): number {
+		/*
+		Based on the following ChatGPT analysis of 2025 data for Trento:
+
+		- Finestre 3h con pioggia (>0): 1127
+		- Distribuzione (solo finestre piovose):
+		- 10° percentile: 0,2 mm
+		- 25°: 0,4 mm
+		- 50° (mediana): 1,2 mm
+		- 75°: 3,8 mm
+		- 90°: 8,0 mm
+		- 95°: 11,34 mm
+		- 99°: 18,54 mm
+		- Massimo su 3 ore: 35,2 mm
+		 */
+
 		if (mm === 0) return 0;
 		if (mm <= 4) return 1;
 		if (mm <= 8) return 2;
