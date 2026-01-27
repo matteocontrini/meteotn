@@ -1,6 +1,15 @@
 import { createTownSlug } from '$lib/slug';
+import { TZDate } from '@date-fns/tz';
 
 const trentinoVenueId = 'fba93146-7192-4190-adab-605435fdeea1';
+
+/**
+ * Parses a datetime string as Italian local time (Europe/Rome timezone).
+ */
+function parseLocalDateTime(dateString: string): Date {
+	// Use TZDate from date-fns v4 to parse in Europe/Rome timezone
+	return new TZDate(dateString, 'Europe/Rome');
+}
 
 type ApiTimeEntry = {
 	id: number;
@@ -110,7 +119,7 @@ export async function fetchForecastData(venueId: string) {
 	const res = await fetch(url);
 	const data = await res.json();
 
-	const start = new Date(data.start);
+	const start = parseLocalDateTime(data.start);
 
 	return Object.keys(data['1440'] as Record<string, ApiDailyForecastEntry>).map(
 		(key, index) =>
@@ -128,7 +137,7 @@ export async function fetchHourlyForecastData(venueId: string) {
 	const res = await fetch(url);
 	const data = await res.json();
 
-	const start = new Date(data.start);
+	const start = parseLocalDateTime(data.start);
 
 	return Object.keys(data['180'] as Record<string, ApiHourlyForecastEntry>).map(
 		(key, index) =>
@@ -251,9 +260,9 @@ export async function fetchBulletins() {
 		.map(
 			(entry: ApiBulletinEntry) =>
 				({
-					start: new Date(entry.start),
-					end: new Date(entry.end),
-					lastUpdate: new Date(entry.last_update),
+					start: parseLocalDateTime(entry.start),
+					end: parseLocalDateTime(entry.end),
+					lastUpdate: parseLocalDateTime(entry.last_update),
 					content: entry.value
 				}) as Bulletin
 		) as Bulletin[];

@@ -50,7 +50,8 @@
 				Bollettino meteorologico - {new Intl.DateTimeFormat('it-IT', {
 				day: '2-digit',
 				month: 'long',
-				year: 'numeric'
+				year: 'numeric',
+				timeZone: 'Europe/Rome'
 			}).format(selectedDay.bulletin.start)}
 			</h2>
 
@@ -67,7 +68,8 @@
 				day: '2-digit',
 				month: 'long',
 				hour: '2-digit',
-				minute: '2-digit'
+				minute: '2-digit',
+				timeZone: 'Europe/Rome'
 			}).format(selectedDay.bulletin.lastUpdate)}.
 			</p>
 		</div>

@@ -37,15 +37,26 @@
 	});
 
 	function formatDayOfWeek(date: Date): string {
-		return new Intl.DateTimeFormat('it-IT', { weekday: 'long' }).format(date);
+		return new Intl.DateTimeFormat('it-IT', {
+			weekday: 'long',
+			timeZone: 'Europe/Rome'
+		}).format(date);
 	}
 
 	function formatDate(date: Date): string {
-		return new Intl.DateTimeFormat('it-IT', { day: 'numeric', month: 'long' }).format(date);
+		return new Intl.DateTimeFormat('it-IT', {
+			day: 'numeric',
+			month: 'long',
+			timeZone: 'Europe/Rome'
+		}).format(date);
 	}
 
 	function formatHour(date: Date): string {
-		return new Intl.DateTimeFormat('it-IT', { hour: '2-digit', minute: '2-digit' }).format(date);
+		return new Intl.DateTimeFormat('it-IT', {
+			hour: '2-digit',
+			minute: '2-digit',
+			timeZone: 'Europe/Rome'
+		}).format(date);
 	}
 
 	// Check if a time slot is the current one (within the 3-hour window)
@@ -55,9 +66,15 @@
 		return now >= time && now < threeHoursLater;
 	}
 
-	// Check if time is between 18:00 and 06:00 (night time)
+	// Check if time is between 18:00 and 06:00 (night time) in Italian timezone
 	function isNightTime(date: Date): boolean {
-		const hour = date.getHours();
+		// Extract hour in Europe/Rome timezone
+		const italianHour = new Intl.DateTimeFormat('it-IT', {
+			hour: 'numeric',
+			hour12: false,
+			timeZone: 'Europe/Rome'
+		}).format(date);
+		const hour = parseInt(italianHour, 10);
 		return hour >= 18 || hour < 6;
 	}
 
