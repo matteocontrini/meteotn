@@ -201,11 +201,11 @@ export async function fetchTowns() {
 			(entry: ApiVenueEntry) =>
 				({
 					id: entry.id,
-					name: entry.name_eng,
+					name: entry.name_ita,
 					elevation: entry.elevation,
 					latitude: entry.lat,
 					longitude: entry.lon,
-					slug: entry.name_eng.toLowerCase().replace(/\s+/g, '-'),
+					slug: entry.name_ita.toLowerCase().replace(/\s+/g, '-'),
 					nearbyStations: Object.entries(entry.neighbors.stations).map(([id, distance]) => ({
 						id,
 						distance
