@@ -12,10 +12,29 @@
 	let { icons, days, selectedDayIndex = $bindable(0) }: Props = $props();
 
 	let selectedDay = $derived(days[selectedDayIndex]);
+	let scrollContainer: HTMLDivElement;
 
 	function selectDay(index: number) {
 		selectedDayIndex = index;
 	}
+
+	// Scroll to current time slot when selecting today, or to start for other days
+	$effect(() => {
+		if (!scrollContainer) return;
+
+		if (selectedDayIndex === 0) {
+			// Scroll to current time slot for today
+			const currentSlot = scrollContainer.querySelector('[data-current-slot]') as HTMLElement;
+			if (currentSlot) {
+				// Calculate scroll position relative to container
+				const scrollLeft = currentSlot.offsetLeft - scrollContainer.offsetLeft;
+				scrollContainer.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+			}
+		} else {
+			// Scroll to beginning for other days
+			scrollContainer.scrollTo({ left: 0, behavior: 'smooth' });
+		}
+	});
 
 	function formatDayOfWeek(date: Date): string {
 		return new Intl.DateTimeFormat('it-IT', { weekday: 'long' }).format(date);
@@ -105,11 +124,12 @@
 	{/each}
 </div>
 
-<div class="mt-5 bg-slate-50 rounded-xl flex overflow-x-auto">
+<div bind:this={scrollContainer} class="mt-5 bg-slate-50 rounded-xl flex overflow-x-auto">
 	{#each selectedDay.hourlyForecasts as hour, index (hour.time)}
 		{@const isCurrent = isCurrentTimeSlot(hour.time)}
 		{@const isNextCurrent = index < 7 && isCurrentTimeSlot(selectedDay.hourlyForecasts[index + 1].time)}
 		<div
+			data-current-slot={isCurrent || undefined}
 			class="p-4 flex flex-col items-center shrink-0 border-r last:border-0
             {isCurrent ? 'bg-sky-100 border-sky-200' : isNextCurrent ? 'border-sky-200' : 'border-slate-200'}">
 			<span class="font-medium">{formatHour(hour.time)}</span>
