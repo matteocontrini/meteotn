@@ -26,17 +26,21 @@
 </svelte:head>
 
 <div class="container">
-	<div class="mt-12 px-4 flex items-baseline gap-4 justify-center flex-wrap">
-		<h1 class="inline-block text-5xl font-light text-center leading-[1.1]">
-			{town.name}
-		</h1>
+	<div class="mt-10 px-4 md:px-0 grid md:grid-cols-2 md:gap-4 items-start">
+		<!-- Left column: Town name and altitude -->
+		<div class="flex md:flex-col items-baseline gap-4 justify-center flex-wrap">
+			<h1 class="text-5xl font-light text-center md:text-left leading-[1.1]">
+				{town.name}
+			</h1>
 
-		<span class="text-slate-500 text-lg">
-			{town.elevation} m
-		</span>
+			<span class="text-slate-500 text-lg">
+				{town.elevation} m
+			</span>
+		</div>
+
+		<!-- Right column: Search and recent towns -->
+		<TownSearch {towns} />
 	</div>
-
-	<TownSearch {towns} />
 
 	<Forecast {icons} {days} bind:selectedDayIndex />
 

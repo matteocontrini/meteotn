@@ -44,7 +44,7 @@
 	}
 </script>
 
-<div class="max-w-md mx-auto mt-10 md:mt-12 relative">
+<div class="max-w-xs mx-auto mt-10 md:mt-0 relative">
 	<div class="relative">
 		<input
 			type="text"
@@ -52,7 +52,7 @@
 			bind:value={searchQuery}
 			onfocus={() => (isSearchFocused = true)}
 			onblur={handleSearchBlur}
-			class="w-full px-4 py-3 pr-10 rounded-xl border-2 border-slate-200 focus:border-sky-500 focus:outline-none bg-white"
+			class="w-full px-3 py-2 pr-10 rounded-xl border-2 border-slate-200 focus:border-sky-500 focus:outline-none bg-white"
 		/>
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
