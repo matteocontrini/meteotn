@@ -25,44 +25,55 @@
 
 	{#if selectedDay.bulletin}
 		<div class="mt-5 bg-slate-50 px-6 py-5 rounded-xl">
-			<h2 class="font-medium">
-				Bollettino meteorologico (provincia di Trento) - {new Intl.DateTimeFormat('it-IT', {
-					day: '2-digit',
-					month: 'long',
-					year: 'numeric'
-				}).format(selectedDay.bulletin.start)}
+			<h2 class="font-medium text-lg">
+				Bollettino meteorologico - {new Intl.DateTimeFormat('it-IT', {
+				day: '2-digit',
+				month: 'long',
+				year: 'numeric'
+			}).format(selectedDay.bulletin.start)}
 			</h2>
 
-			<p class="mt-2">
+			<p class="mt-3">
 				{selectedDay.bulletin.content}
 			</p>
 
-			<p class="mt-2 text-sm text-slate-500">
+			<p class="mt-3 text-xs text-slate-500">
+				Il bollettino è scritto da un meteorologo e vale per l'intera provincia.
+			</p>
+
+			<p class="text-xs text-slate-500">
 				Ultimo aggiornamento: {new Intl.DateTimeFormat('it-IT', {
-					day: '2-digit',
-					month: 'long',
-					hour: '2-digit',
-					minute: '2-digit'
-				}).format(selectedDay.bulletin.lastUpdate)}
+				day: '2-digit',
+				month: 'long',
+				hour: '2-digit',
+				minute: '2-digit'
+			}).format(selectedDay.bulletin.lastUpdate)}.
 			</p>
 		</div>
 	{/if}
 
-	<!--	<div class="flex">-->
-	<!--		<iframe-->
-	<!--			src="https://meteo.report/precipitation_widget/?mode=l"-->
-	<!--			width="350"-->
-	<!--			height="560"-->
-	<!--			frameborder="0"-->
-	<!--		>-->
-	<!--		</iframe>-->
+	<div class="flex mt-8 bg-slate-50 px-6 py-5 rounded-xl gap-6 flex-wrap justify-center">
+		<iframe
+			src="https://meteo.report/precipitation_widget/?mode=l"
+			width="350"
+			height="560"
+			frameborder="0"
+		>
+		</iframe>
 
-	<!--		<iframe-->
-	<!--			src="https://meteo.report/model_widget/?mode=l"-->
-	<!--			width="350"-->
-	<!--			height="560"-->
-	<!--			frameborder="0"-->
-	<!--		>-->
-	<!--		</iframe>-->
-	<!--	</div>-->
+		<iframe
+			src="https://meteo.report/model_widget/?mode=l"
+			width="350"
+			height="560"
+			frameborder="0"
+		>
+		</iframe>
+	</div>
+
+	<div>
+		<p class="mt-12 mb-6 text-sm text-slate-500 text-center">
+			I dati meteo sono forniti dalla provincia autonoma di Trento nell'ambito del
+			<a href="https://www.meteotrentino.it/previsioni/bollettino-euregio/" class="underline">progetto Euregio TINIA</a>.
+		</p>
+	</div>
 </div>
