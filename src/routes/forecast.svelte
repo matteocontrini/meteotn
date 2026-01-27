@@ -89,7 +89,7 @@
 			aria-pressed={index === selectedDayIndex}
 			class="flex flex-col items-center p-2 md:p-4 rounded-none first:rounded-l-xl last:rounded-r-xl md:rounded-xl cursor-pointer
 				{index === selectedDayIndex
-					? 'bg-sky-100 border-2 border-sky-500 shadow-md'
+					? 'bg-sky-100 border-2 border-sky-500'
 					: 'bg-slate-50 border-2 border-transparent hover:bg-slate-100 hover:border-slate-300 border-r-slate-200 last:border-r-transparent md:border-r-transparent'}">
 			<span class="font-medium text-xs md:text-base md:hidden">
 				{#if index === 0}

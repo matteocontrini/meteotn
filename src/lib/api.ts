@@ -1,3 +1,5 @@
+import { createTownSlug } from '$lib/slug';
+
 const trentinoVenueId = 'fba93146-7192-4190-adab-605435fdeea1';
 
 type ApiTimeEntry = {
@@ -205,7 +207,7 @@ export async function fetchTowns() {
 					elevation: entry.elevation,
 					latitude: entry.lat,
 					longitude: entry.lon,
-					slug: entry.name_ita.toLowerCase().replace(/\s+/g, '-'),
+					slug: createTownSlug(entry.name_ita),
 					nearbyStations: Object.entries(entry.neighbors.stations).map(([id, distance]) => ({
 						id,
 						distance

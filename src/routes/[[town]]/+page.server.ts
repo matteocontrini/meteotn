@@ -8,18 +8,19 @@ import {
 	fetchBulletins,
 	type DayData
 } from '$lib/api';
+import { createTownSlug } from '$lib/slug';
 import { error } from '@sveltejs/kit';
 
 let iconsCache: IconMappings | null = null;
 let townsCache: Town[] | null = null;
 
-export async function load({ params }) {
+export const load = async ({ params }) => {
 	let { town: slug } = params;
 	if (!slug) {
 		slug = 'trento';
 	}
 
-	slug = slug.toLowerCase();
+	slug = createTownSlug(slug);
 
 	if (!iconsCache) {
 		iconsCache = await fetchIcons();
@@ -75,4 +76,4 @@ export async function load({ params }) {
 		icons: iconsCache,
 		days
 	};
-}
+};
