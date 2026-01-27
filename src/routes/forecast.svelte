@@ -139,7 +139,7 @@
 			<span class="text-xl font-medium">{Math.round(hour.temperature)}°</span>
 
 			<span class="mt-5 text-slate-500 text-xs leading-4 text-center uppercase">
-				Probabilità<br>precipitazioni
+				Pioggia
 			</span>
 
 			<div class="mt-2 relative">
@@ -154,6 +154,14 @@
 
 			<span class="mt-5 text-slate-500 text-xs leading-3 text-center uppercase">
 				Intensità
+			</span>
+
+			<span class="mt-1 text-slate-500 text-xs leading-4 text-center">
+				({new Intl.NumberFormat('it-IT', {
+				style: 'unit',
+				unit: 'millimeter',
+				unitDisplay: 'short',
+			}).format(hour.rainFall)})
 			</span>
 
 			<div class="mt-2 flex">
