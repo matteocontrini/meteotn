@@ -106,9 +106,9 @@
 		 */
 
 		if (mm === 0) return 0;
-		if (mm <= 4) return 1;
-		if (mm <= 8) return 2;
-		if (mm <= 12) return 3;
+		if (mm < 4) return 1;
+		if (mm < 8) return 2;
+		if (mm < 12) return 3;
 		return 4;
 	}
 </script>
