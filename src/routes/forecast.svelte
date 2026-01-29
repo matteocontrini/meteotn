@@ -111,6 +111,10 @@
 		if (mm < 12) return 3;
 		return 4;
 	}
+
+	function getSunshineDisplayHours(hours: number): number {
+		return Math.round(hours * 2) / 2;
+	}
 </script>
 
 <div class="mt-10 md:mt-12 grid grid-cols-6 gap-0 md:gap-3">
@@ -160,6 +164,7 @@
 	{#each selectedDay.hourlyForecasts as hour, index (hour.time)}
 		{@const isCurrent = isCurrentTimeSlot(hour.time)}
 		{@const isNextCurrent = index < 7 && isCurrentTimeSlot(selectedDay.hourlyForecasts[index + 1].time)}
+		{@const sunshineDisplay = getSunshineDisplayHours(hour.sunshineDuration)}
 		<div
 			data-current-slot={isCurrent || undefined}
 			class="p-4 flex flex-col items-center shrink-0 border-r last:border-0
@@ -216,12 +221,34 @@
 
 			<div class="mt-2 flex">
 				{#each Array.from({ length: 3 }) as _, index}
+					{@const isFullSun = sunshineDisplay >= index + 1}
+					{@const isHalfSun = !isFullSun && sunshineDisplay >= index + 0.5}
+					{@const sunHalfId = `sun-half-${hour.time.getTime()}-${index}`}
 					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"
-							 fill="none" stroke={hour.sunshineDuration > index ? "#E38039" : "#6E6E6E"} stroke-width="2"
+							 fill="none"
+							 stroke-width="2"
 							 stroke-linecap="round" stroke-linejoin="round">
-						<circle cx="10" cy="10" r="4.5" fill={hour.sunshineDuration > index ? "#FBC700" : "none"} />
-						<path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.6 4.6l1.4 1.4M14 14l1.4 1.4M15.4 4.6 14 6M6 14 4.6 15.4" />
-						<circle cx="10" cy="10" r="4.5" />
+						{#if isHalfSun}
+							<defs>
+								<clipPath id={sunHalfId}>
+									<rect x="0" y="0" width="10" height="20" />
+								</clipPath>
+							</defs>
+							<circle cx="10" cy="10" r="4.5" fill="#FBC700" clip-path={`url(#${sunHalfId})`} />
+						{:else}
+							<circle cx="10" cy="10" r="4.5" fill={isFullSun ? "#FBC700" : "none"} />
+						{/if}
+						<path
+							stroke={isFullSun ? "#E38039" : "#6E6E6E"}
+							d="M10 2v2M10 16v2M2 10h2M16 10h2M4.6 4.6l1.4 1.4M14 14l1.4 1.4M15.4 4.6 14 6M6 14 4.6 15.4" />
+						<circle stroke={isFullSun ? "#E38039" : "#6E6E6E"} cx="10" cy="10" r="4.5" />
+						{#if isHalfSun}
+							<path
+								stroke="#E38039"
+								clip-path={`url(#${sunHalfId})`}
+								d="M10 2v2M10 16v2M2 10h2M16 10h2M4.6 4.6l1.4 1.4M14 14l1.4 1.4M15.4 4.6 14 6M6 14 4.6 15.4" />
+							<circle stroke="#E38039" clip-path={`url(#${sunHalfId})`} cx="10" cy="10" r="4.5" />
+						{/if}
 					</svg>
 				{/each}
 			</div>
