@@ -282,14 +282,6 @@
 			</div>
 
 			<span class="mt-5 text-slate-500 text-xs leading-3 text-center uppercase">
-				Neve fresca
-			</span>
-
-			<div class="mt-2 flex">
-				<span class="font-medium text-sm">{Math.round(hour.freshSnow * 100)} cm</span>
-			</div>
-
-			<span class="mt-5 text-slate-500 text-xs leading-3 text-center uppercase">
 				Zero termico
 			</span>
 
