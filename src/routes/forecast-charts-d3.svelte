@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { TZDate } from '@date-fns/tz';
 	import type { DayData, HourlyForecast, IconMappings } from '$lib/api';
 	import WeatherChartD3 from './weather-chart-d3.svelte';
 
@@ -10,11 +11,17 @@
 	let { days, icons }: Props = $props();
 	let showSunshine = $state(false);
 	let weekHours = $derived(days.flatMap((day) => day.hourlyForecasts));
-	let boundaries = $derived.by(() =>
-		days
-			.slice(1)
-			.map((day) => day.hourlyForecasts[0]?.time ?? null)
-			.filter((date): date is Date => date !== null)
+	let boundaries = $derived(
+		days.slice(1).map((day) => {
+			const localDate = new TZDate(day.date, 'Europe/Rome');
+			return new TZDate(
+				localDate.getFullYear(),
+				localDate.getMonth(),
+				localDate.getDate(),
+				0,
+				'Europe/Rome'
+			);
+		})
 	);
 	let maxima = $derived(
 		days

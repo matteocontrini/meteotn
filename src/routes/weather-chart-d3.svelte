@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { TZDate } from '@date-fns/tz';
 	import type { HourlyForecast } from '$lib/api';
 	import { bisector, extent, max, range } from 'd3-array';
 	import { scaleLinear, scaleTime } from 'd3-scale';
@@ -24,12 +25,13 @@
 		label
 	}: Props = $props();
 	let hovered = $state<HourlyForecast | null>(null);
+	let renderedWidth = $state(960);
 
 	const width = 960;
-	const height = 280;
+	const height = 292;
 	const margin = { top: 18, right: 52, left: 52 };
 	const plotBottom = 232;
-	const unitY = 260;
+	const unitY = 282;
 	const plotWidth = width - margin.left - margin.right;
 	const forecastInterval = 3 * 60 * 60 * 1000;
 	// Known MeteoSwiss hourly intensity bands, multiplied by three because each TINIA
@@ -81,6 +83,36 @@
 	let barWidth = $derived(
 		x(new Date(hours[0].time.getTime() + forecastInterval)) - x(hours[0].time)
 	);
+	let timeTicks = $derived.by(() => {
+		const [start, end] = x.domain();
+		const localStart = new TZDate(start, 'Europe/Rome');
+		const cursor = new TZDate(
+			localStart.getFullYear(),
+			localStart.getMonth(),
+			localStart.getDate(),
+			0,
+			'Europe/Rome'
+		);
+		const candidates: Date[] = [];
+		while (cursor <= end) {
+			if (cursor >= start) candidates.push(new Date(cursor.getTime()));
+			cursor.setHours(cursor.getHours() + 12);
+		}
+
+		const renderedPlotWidth = renderedWidth * (plotWidth / width);
+		const forecastDays = Math.max(1, (end.getTime() - start.getTime()) / (24 * 60 * 60 * 1000));
+		const includeNoon = renderedPlotWidth / forecastDays >= 120;
+
+		return candidates.filter((tick) => {
+			const localTick = new TZDate(tick, 'Europe/Rome');
+			const tickX = x(tick);
+			return (
+				(includeNoon || localTick.getHours() === 0) &&
+				tickX >= margin.left + 24 &&
+				tickX <= width - margin.right - 24
+			);
+		});
+	});
 	let nowX = $derived.by(() => {
 		const now = new Date();
 		const [start, end] = x.domain();
@@ -116,6 +148,7 @@
 </script>
 
 <svg
+	bind:clientWidth={renderedWidth}
 	viewBox={`0 0 ${width} ${height}`}
 	role="img"
 	aria-label={label}
@@ -239,6 +272,12 @@
 		y2={plotBottom}
 		class="baseline"
 	/>
+	{#each timeTicks as tick (tick)}
+		<line x1={x(tick)} x2={x(tick)} y1={plotBottom + 10} y2={plotBottom + 14} class="time-tick" />
+		<text x={x(tick)} y={plotBottom + 28} text-anchor="middle" class="time-tick-label">
+			{formatHour(tick)}
+		</text>
+	{/each}
 	<text x={margin.left - 8} y={unitY} text-anchor="end" class="temperature-unit">°C</text>
 	<text x={width - 12} y={unitY} text-anchor="end" class="rain-unit">mm/3h</text>
 
@@ -358,6 +397,16 @@
 
 	.baseline {
 		stroke: #94a3b8;
+	}
+
+	.time-tick {
+		stroke: #94a3b8;
+	}
+
+	.time-tick-label {
+		fill: #64748b;
+		font-size: 11px;
+		font-variant-numeric: tabular-nums;
 	}
 
 	.temperature-unit,
