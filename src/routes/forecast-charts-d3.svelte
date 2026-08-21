@@ -25,6 +25,16 @@
 			)
 			.filter((hour): hour is HourlyForecast => hour !== null)
 	);
+	let minima = $derived(
+		days
+			.map((day) =>
+				day.hourlyForecasts.reduce<HourlyForecast | null>(
+					(lowest, hour) => (!lowest || hour.temperature < lowest.temperature ? hour : lowest),
+					null
+				)
+			)
+			.filter((hour): hour is HourlyForecast => hour !== null)
+	);
 	const originalPalette = [
 		'#b29afb',
 		'#4076ed',
@@ -131,6 +141,7 @@
 					hours={weekHours}
 					dayBoundaries={boundaries}
 					{maxima}
+					{minima}
 					rainColors={originalPalette}
 					label="Temperatura e precipitazioni nei prossimi giorni"
 				/>
@@ -140,7 +151,12 @@
 		<div class="mt-3 space-y-2 px-1 text-sm text-slate-600">
 			<div class="flex flex-wrap items-center gap-x-5 gap-y-2">
 				<span class="inline-flex items-center gap-2"
-					><i class="h-0.5 w-5 bg-red-500"></i> Temperatura</span
+					><i
+						class="h-0.5 w-5"
+						style="background: linear-gradient(to right, #3b82f6, #ef4444)"
+						aria-hidden="true"
+					></i>
+					Temperatura</span
 				>
 				<span class="inline-flex items-center gap-2">
 					<i class="h-1.5 w-4 border border-blue-200" aria-hidden="true"></i>

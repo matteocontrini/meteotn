@@ -8,11 +8,12 @@
 		hours: HourlyForecast[];
 		dayBoundaries?: Date[];
 		maxima?: HourlyForecast[];
+		minima?: HourlyForecast[];
 		rainColors: string[];
 		label: string;
 	}
 
-	let { hours, dayBoundaries = [], maxima = [], rainColors, label }: Props = $props();
+	let { hours, dayBoundaries = [], maxima = [], minima = [], rainColors, label }: Props = $props();
 	let hovered = $state<HourlyForecast | null>(null);
 
 	const width = 960;
@@ -112,6 +113,20 @@
 	onpointermove={handlePointerMove}
 	onpointerleave={() => (hovered = null)}
 >
+	<defs>
+		<linearGradient
+			id="temperature-gradient"
+			gradientUnits="userSpaceOnUse"
+			x1="0"
+			x2="0"
+			y1={plotBottom}
+			y2={margin.top}
+		>
+			<stop offset="0%" stop-color="#3b82f6" />
+			<stop offset="100%" stop-color="#ef4444" />
+		</linearGradient>
+	</defs>
+
 	{#each temperatureTicks as tick (tick)}
 		{@const tickY = temperature(tick)}
 		<line x1={margin.left} x2={width - margin.right} y1={tickY} y2={tickY} class="axis-grid" />
@@ -168,7 +183,7 @@
 		</g>
 	{/each}
 
-	<path d={temperatureLine} class="temperature-line" />
+	<path d={temperatureLine} class="temperature-line" stroke="url(#temperature-gradient)" />
 
 	{#each maxima as hour (hour.time)}
 		<circle cx={x(hour.time)} cy={temperature(hour.temperature)} r="5" class="maximum-point" />
@@ -177,6 +192,15 @@
 			y={temperature(hour.temperature) - 10}
 			text-anchor="middle"
 			class="maximum-label">{Math.round(hour.temperature)}°</text
+		>
+	{/each}
+	{#each minima as hour (hour.time)}
+		<circle cx={x(hour.time)} cy={temperature(hour.temperature)} r="5" class="minimum-point" />
+		<text
+			x={x(hour.time)}
+			y={temperature(hour.temperature) + 20}
+			text-anchor="middle"
+			class="minimum-label">{Math.round(hour.temperature)}°</text
 		>
 	{/each}
 
@@ -271,26 +295,42 @@
 
 	.temperature-line {
 		fill: none;
-		stroke: #ef4444;
 		stroke-width: 5;
 		stroke-linecap: round;
 		stroke-linejoin: round;
 	}
 
 	.maximum-point,
+	.minimum-point,
 	.hover-point {
-		fill: #ef4444;
 		stroke: white;
 		stroke-width: 2;
 	}
 
-	.maximum-label {
-		fill: #b91c1c;
+	.maximum-point,
+	.hover-point {
+		fill: #ef4444;
+	}
+
+	.minimum-point {
+		fill: #3b82f6;
+	}
+
+	.maximum-label,
+	.minimum-label {
 		font-size: 14px;
 		font-weight: 700;
 		paint-order: stroke;
 		stroke: #f8fafc;
 		stroke-width: 3px;
+	}
+
+	.maximum-label {
+		fill: #b91c1c;
+	}
+
+	.minimum-label {
+		fill: #1d4ed8;
 	}
 
 	.baseline {
