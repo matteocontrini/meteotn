@@ -43,11 +43,19 @@ export const load = async ({ params }) => {
 		fetchBulletins()
 	]);
 
+	const dateKey = (date: Date) =>
+		new Intl.DateTimeFormat('en-CA', {
+			year: 'numeric',
+			month: '2-digit',
+			day: '2-digit',
+			timeZone: 'Europe/Rome'
+		}).format(date);
+
 	// Organize data by day
-	const days: DayData[] = forecast.map((dailyForecast, dayIndex) => {
-		// Get 8 hourly entries for this day (3-hour intervals = 24 hours)
-		const hourlyStart = dayIndex * 8;
-		const hourlyForecasts = hourlyForecast.slice(hourlyStart, hourlyStart + 8);
+	const allDays: DayData[] = forecast.map((dailyForecast) => {
+		const hourlyForecasts = hourlyForecast.filter(
+			(hourly) => dateKey(hourly.time) === dateKey(dailyForecast.date)
+		);
 
 		// Find bulletin that applies to this day
 		const bulletin = bulletins.find((b) => {
@@ -65,6 +73,8 @@ export const load = async ({ params }) => {
 			bulletin
 		};
 	});
+	const today = dateKey(new Date());
+	const days = allDays.filter((day) => dateKey(day.date) >= today);
 
 	return {
 		town,

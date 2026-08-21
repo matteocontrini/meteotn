@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { DayData, IconMappings } from '$lib/api';
+	import ForecastCharts from './forecast-charts-d3.svelte';
 
 	interface Props {
 		icons: IconMappings;
@@ -49,6 +50,16 @@
 			month: 'long',
 			timeZone: 'Europe/Rome'
 		}).format(date);
+	}
+
+	function isToday(date: Date): boolean {
+		const formatter = new Intl.DateTimeFormat('en-CA', {
+			year: 'numeric',
+			month: '2-digit',
+			day: '2-digit',
+			timeZone: 'Europe/Rome'
+		});
+		return formatter.format(date) === formatter.format(new Date());
 	}
 
 	function formatHour(date: Date): string {
@@ -117,42 +128,52 @@
 	}
 </script>
 
-<div class="mt-10 md:mt-12 grid grid-cols-6 gap-0 md:gap-3">
+<ForecastCharts {days} {icons} />
+
+<div
+	class="mt-10 grid gap-0 md:mt-12 md:gap-3"
+	style:grid-template-columns={`repeat(${days.length}, minmax(0, 1fr))`}
+>
 	{#each days as day, index (day.date)}
 		<button
 			type="button"
 			onclick={() => selectDay(index)}
 			aria-pressed={index === selectedDayIndex}
-			class="flex flex-col items-center p-2 md:p-4 rounded-none first:rounded-l-xl last:rounded-r-xl md:rounded-xl cursor-pointer
+			class="flex cursor-pointer flex-col items-center rounded-none p-2 first:rounded-l-xl last:rounded-r-xl md:rounded-xl md:p-4
 				{index === selectedDayIndex
-					? 'bg-sky-100 border-2 border-sky-500'
-					: 'bg-slate-50 border-2 border-transparent hover:bg-slate-100 hover:border-slate-300 border-r-slate-200 last:border-r-transparent md:border-r-transparent'}">
-			<span class="font-medium text-xs md:text-base md:hidden">
-				{#if index === 0}
+				? 'border-2 border-sky-500 bg-sky-100'
+				: 'border-2 border-transparent border-r-slate-200 bg-slate-50 last:border-r-transparent hover:border-slate-300 hover:bg-slate-100 md:border-r-transparent'}"
+		>
+			<span class="text-xs font-medium md:hidden md:text-base">
+				{#if isToday(day.date)}
 					Oggi
 				{:else}
 					{formatDayOfWeek(day.date).substring(0, 3)}
 				{/if}
 			</span>
-			<span class="font-medium hidden md:block">
-				{#if index === 0}
+			<span class="hidden font-medium md:block">
+				{#if isToday(day.date)}
 					oggi
 				{:else}
 					{formatDayOfWeek(day.date)}
 				{/if}
 			</span>
-			<span class="text-2xl font-medium leading-7 md:hidden">{day.date.getDate()}</span>
-			<span class="leading-6 hidden md:block">{formatDate(day.date)}</span>
-			<img src="https://meteo.report/images/icons/{icons[day.dailyForecast.skyCondition].day}"
-					 alt="TODO"
-					 class="size-12 my-2 md:size-16 md:my-5" />
-			<div class="flex flex-col md:flex-row gap-1 md:gap-2 w-full md:w-auto font-medium">
+			<span class="text-2xl leading-7 font-medium md:hidden">{day.date.getDate()}</span>
+			<span class="hidden leading-6 md:block">{formatDate(day.date)}</span>
+			<img
+				src="https://meteo.report/images/icons/{icons[day.dailyForecast.skyCondition].day}"
+				alt="TODO"
+				class="my-2 size-12 md:my-5 md:size-16"
+			/>
+			<div class="flex w-full flex-col gap-1 font-medium md:w-auto md:flex-row md:gap-2">
 				<div
-					class="bg-sky-800 rounded md:rounded-lg text-white text-base md:text-xl font-semibold md:font-medium text-center py-0.5 md:px-2.5 md:py-1">
+					class="rounded bg-sky-800 py-0.5 text-center text-base font-semibold text-white md:rounded-lg md:px-2.5 md:py-1 md:text-xl md:font-medium"
+				>
 					{day.dailyForecast.temperatureMinimum}°
 				</div>
 				<div
-					class="bg-red-800 rounded md:rounded-lg text-white text-base md:text-xl font-semibold md:font-medium text-center py-0.5 md:px-2.5 md:py-1">
+					class="rounded bg-red-800 py-0.5 text-center text-base font-semibold text-white md:rounded-lg md:px-2.5 md:py-1 md:text-xl md:font-medium"
+				>
 					{day.dailyForecast.temperatureMaximum}°
 				</div>
 			</div>
@@ -160,62 +181,78 @@
 	{/each}
 </div>
 
-<div bind:this={scrollContainer} class="mt-5 flex md:grid grid-cols-8 bg-slate-50 rounded-xl overflow-x-auto">
+<div
+	bind:this={scrollContainer}
+	class="mt-5 flex grid-cols-8 overflow-x-auto rounded-xl bg-slate-50 md:grid"
+>
 	{#each selectedDay.hourlyForecasts as hour, index (hour.time)}
 		{@const isCurrent = isCurrentTimeSlot(hour.time)}
-		{@const isNextCurrent = index < 7 && isCurrentTimeSlot(selectedDay.hourlyForecasts[index + 1].time)}
+		{@const isNextCurrent =
+			index < 7 && isCurrentTimeSlot(selectedDay.hourlyForecasts[index + 1].time)}
 		{@const sunshineDisplay = getSunshineDisplayHours(hour.sunshineDuration)}
 		<div
 			data-current-slot={isCurrent || undefined}
-			class="p-4 flex flex-col items-center shrink-0 border-r last:border-0
-            {isCurrent ? 'bg-sky-100 border-sky-200' : isNextCurrent ? 'border-sky-200' : 'border-slate-200'}">
+			class="flex shrink-0 flex-col items-center border-r p-4 last:border-0
+            {isCurrent
+				? 'border-sky-200 bg-sky-100'
+				: isNextCurrent
+					? 'border-sky-200'
+					: 'border-slate-200'}"
+		>
 			<span class="font-medium">{formatHour(hour.time)}</span>
-			<img src="https://meteo.report/images/icons/{getIcon(hour.skyCondition, hour.time)}"
-					 alt="TODO"
-					 class="size-12 my-3" />
+			<img
+				src="https://meteo.report/images/icons/{getIcon(hour.skyCondition, hour.time)}"
+				alt="TODO"
+				class="my-3 size-12"
+			/>
 			<span class="text-xl font-medium">{Math.round(hour.temperature)}°</span>
 
-			<span class="mt-5 text-slate-500 text-xs leading-4 text-center uppercase">
-				Pioggia
-			</span>
+			<span class="mt-5 text-center text-xs leading-4 text-slate-500 uppercase"> Pioggia </span>
 
-			<div class="mt-2 relative">
-				<div class="h-4 w-20 bg-sky-600/20 rounded">
-				</div>
-				<div class="absolute left-0 top-0 h-4 bg-sky-600 rounded" style="width: {hour.rainProbability}%"></div>
+			<div class="relative mt-2">
+				<div class="h-4 w-20 rounded bg-sky-600/20"></div>
+				<div
+					class="absolute top-0 left-0 h-4 rounded bg-sky-600"
+					style="width: {hour.rainProbability}%"
+				></div>
 				<span
-					class="absolute font-medium text-xs left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 {hour.rainProbability >= 40 ? 'text-white drop-shadow' : 'text-sky-700'}">
+					class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-medium {hour.rainProbability >=
+					40
+						? 'text-white drop-shadow'
+						: 'text-sky-700'}"
+				>
 					{hour.rainProbability}%
 				</span>
 			</div>
 
-			<span class="mt-5 text-slate-500 text-xs leading-3 text-center uppercase">
-				Intensità
-			</span>
+			<span class="mt-5 text-center text-xs leading-3 text-slate-500 uppercase"> Intensità </span>
 
-			<span class="mt-1 text-slate-500 text-xs leading-4 text-center">
+			<span class="mt-1 text-center text-xs leading-4 text-slate-500">
 				({new Intl.NumberFormat('it-IT', {
-				style: 'unit',
-				unit: 'millimeter',
-				unitDisplay: 'short',
-			}).format(hour.rainFall)})
+					style: 'unit',
+					unit: 'millimeter',
+					unitDisplay: 'short'
+				}).format(hour.rainFall)})
 			</span>
 
 			<div class="mt-2 flex">
 				{#each Array.from({ length: 4 }) as _, index}
-					<svg xmlns="http://www.w3.org/2000/svg"
-							 width="16" height="16"
-							 viewBox="0 0 20 20"
-							 fill={index < getRainfallIntensity(hour.rainFall) ? "#0284c7" : "none"}
-							 stroke="#0284c7"
-							 stroke-width="2"
-							 stroke-linejoin="round">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="16"
+						height="16"
+						viewBox="0 0 20 20"
+						fill={index < getRainfallIntensity(hour.rainFall) ? '#0284c7' : 'none'}
+						stroke="#0284c7"
+						stroke-width="2"
+						stroke-linejoin="round"
+					>
 						<path d="M10 1.5 C7.5 6,4.5 9,4.5 13 a5.5 5.5 0 0 0 11 0 c0-4-3-7-5.5-11.5z" />
 					</svg>
 				{/each}
 			</div>
 
-			<span class="mt-5 text-slate-500 text-xs leading-3 text-center uppercase">
+			<span class="mt-5 text-center text-xs leading-3 text-slate-500 uppercase">
 				Soleggiamento
 			</span>
 
@@ -224,10 +261,16 @@
 					{@const isFullSun = sunshineDisplay >= index + 1}
 					{@const isHalfSun = !isFullSun && sunshineDisplay >= index + 0.5}
 					{@const sunHalfId = `sun-half-${hour.time.getTime()}-${index}`}
-					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"
-							 fill="none"
-							 stroke-width="2"
-							 stroke-linecap="round" stroke-linejoin="round">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="20"
+						height="20"
+						viewBox="0 0 20 20"
+						fill="none"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
 						{#if isHalfSun}
 							<defs>
 								<clipPath id={sunHalfId}>
@@ -236,57 +279,55 @@
 							</defs>
 							<circle cx="10" cy="10" r="4.5" fill="#FBC700" clip-path={`url(#${sunHalfId})`} />
 						{:else}
-							<circle cx="10" cy="10" r="4.5" fill={isFullSun ? "#FBC700" : "none"} />
+							<circle cx="10" cy="10" r="4.5" fill={isFullSun ? '#FBC700' : 'none'} />
 						{/if}
 						<path
-							stroke={isFullSun ? "#E38039" : "#6E6E6E"}
-							d="M10 2v2M10 16v2M2 10h2M16 10h2M4.6 4.6l1.4 1.4M14 14l1.4 1.4M15.4 4.6 14 6M6 14 4.6 15.4" />
-						<circle stroke={isFullSun ? "#E38039" : "#6E6E6E"} cx="10" cy="10" r="4.5" />
+							stroke={isFullSun ? '#E38039' : '#6E6E6E'}
+							d="M10 2v2M10 16v2M2 10h2M16 10h2M4.6 4.6l1.4 1.4M14 14l1.4 1.4M15.4 4.6 14 6M6 14 4.6 15.4"
+						/>
+						<circle stroke={isFullSun ? '#E38039' : '#6E6E6E'} cx="10" cy="10" r="4.5" />
 						{#if isHalfSun}
 							<path
 								stroke="#E38039"
 								clip-path={`url(#${sunHalfId})`}
-								d="M10 2v2M10 16v2M2 10h2M16 10h2M4.6 4.6l1.4 1.4M14 14l1.4 1.4M15.4 4.6 14 6M6 14 4.6 15.4" />
+								d="M10 2v2M10 16v2M2 10h2M16 10h2M4.6 4.6l1.4 1.4M14 14l1.4 1.4M15.4 4.6 14 6M6 14 4.6 15.4"
+							/>
 							<circle stroke="#E38039" clip-path={`url(#${sunHalfId})`} cx="10" cy="10" r="4.5" />
 						{/if}
 					</svg>
 				{/each}
 			</div>
 
-			<span class="mt-5 text-slate-500 text-xs leading-3 text-center uppercase">
-				Vento
-			</span>
+			<span class="mt-5 text-center text-xs leading-3 text-slate-500 uppercase"> Vento </span>
 
 			<div class="mt-2 flex">
-				<img src="https://meteo.report/images/arrowup1.png"
-						 alt="wind direction"
-						 style="transform: rotate({hour.windDirection}deg);"
-						 class="size-4 mr-1" />
-				<span class="font-medium text-sm">{Math.round(hour.windSpeed)} km/h</span>
+				<img
+					src="https://meteo.report/images/arrowup1.png"
+					alt="wind direction"
+					style="transform: rotate({hour.windDirection}deg);"
+					class="mr-1 size-4"
+				/>
+				<span class="text-sm font-medium">{Math.round(hour.windSpeed)} km/h</span>
 			</div>
 
-			<span class="mt-5 text-slate-500 text-xs leading-3 text-center uppercase">
-				Raffiche
-			</span>
+			<span class="mt-5 text-center text-xs leading-3 text-slate-500 uppercase"> Raffiche </span>
 
 			<div class="mt-2 flex">
-				<span class="font-medium text-sm">{Math.round(hour.windGust)} km/h</span>
+				<span class="text-sm font-medium">{Math.round(hour.windGust)} km/h</span>
 			</div>
 
-			<span class="mt-5 text-slate-500 text-xs leading-3 text-center uppercase">
-				Quota neve
-			</span>
+			<span class="mt-5 text-center text-xs leading-3 text-slate-500 uppercase"> Quota neve </span>
 
 			<div class="mt-2 flex">
-				<span class="font-medium text-sm">{Math.round(hour.snowLevel)} m</span>
+				<span class="text-sm font-medium">{Math.round(hour.snowLevel)} m</span>
 			</div>
 
-			<span class="mt-5 text-slate-500 text-xs leading-3 text-center uppercase">
+			<span class="mt-5 text-center text-xs leading-3 text-slate-500 uppercase">
 				Zero termico
 			</span>
 
 			<div class="mt-2 flex">
-				<span class="font-medium text-sm">{Math.round(hour.freezingLevel)} m</span>
+				<span class="text-sm font-medium">{Math.round(hour.freezingLevel)} m</span>
 			</div>
 		</div>
 	{/each}
