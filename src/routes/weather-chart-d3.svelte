@@ -9,11 +9,20 @@
 		dayBoundaries?: Date[];
 		maxima?: HourlyForecast[];
 		minima?: HourlyForecast[];
+		showSunshine?: boolean;
 		rainColors: string[];
 		label: string;
 	}
 
-	let { hours, dayBoundaries = [], maxima = [], minima = [], rainColors, label }: Props = $props();
+	let {
+		hours,
+		dayBoundaries = [],
+		maxima = [],
+		minima = [],
+		showSunshine = false,
+		rainColors,
+		label
+	}: Props = $props();
 	let hovered = $state<HourlyForecast | null>(null);
 
 	const width = 960;
@@ -126,6 +135,20 @@
 			<stop offset="100%" stop-color="#ef4444" />
 		</linearGradient>
 	</defs>
+	{#if showSunshine}
+		<g class="sunshine-layer" aria-hidden="true">
+			{#each hours as hour (hour.time)}
+				<rect
+					x={x(hour.time)}
+					y={margin.top}
+					width={barWidth}
+					height={plotBottom - margin.top}
+					fill="#facc15"
+					opacity={Math.min(1, Math.max(0, hour.sunshineDuration / 3)) * 0.2}
+				/>
+			{/each}
+		</g>
+	{/if}
 
 	{#each temperatureTicks as tick (tick)}
 		{@const tickY = temperature(tick)}

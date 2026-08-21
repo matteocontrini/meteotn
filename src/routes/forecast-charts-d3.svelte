@@ -8,6 +8,7 @@
 	}
 
 	let { days, icons }: Props = $props();
+	let showSunshine = $state(false);
 	let weekHours = $derived(days.flatMap((day) => day.hourlyForecasts));
 	let boundaries = $derived.by(() =>
 		days
@@ -142,6 +143,7 @@
 					dayBoundaries={boundaries}
 					{maxima}
 					{minima}
+					{showSunshine}
 					rainColors={originalPalette}
 					label="Temperatura e precipitazioni nei prossimi giorni"
 				/>
@@ -191,6 +193,29 @@
 						<span class="font-normal">km/h</span>
 					</span>
 				</span>
+				<button
+					type="button"
+					aria-pressed={showSunshine}
+					onclick={() => (showSunshine = !showSunshine)}
+					class="inline-flex items-center gap-2 transition-colors {showSunshine
+						? 'text-amber-700'
+						: 'text-slate-600'}"
+				>
+					<span aria-hidden="true">☀</span>
+					Soleggiamento
+					<span
+						class="relative h-4 w-7 rounded-full transition-colors {showSunshine
+							? 'bg-amber-400'
+							: 'bg-slate-300'}"
+						aria-hidden="true"
+					>
+						<i
+							class="absolute top-0.5 left-0.5 size-3 rounded-full bg-white shadow-sm transition-transform {showSunshine
+								? 'translate-x-3'
+								: ''}"
+						></i>
+					</span>
+				</button>
 			</div>
 		</div>
 	</div>
