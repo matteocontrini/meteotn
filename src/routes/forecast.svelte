@@ -205,7 +205,7 @@
 				alt="TODO"
 				class="my-3 size-12"
 			/>
-			<span class="text-xl font-medium">{Math.round(hour.temperature)}°</span>
+			<span class="text-xl font-medium">{hour.temperature}°</span>
 
 			<span class="mt-5 text-center text-xs leading-4 text-slate-500 uppercase"> Pioggia </span>
 

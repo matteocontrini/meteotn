@@ -247,7 +247,7 @@
 			x={x(hour.time)}
 			y={temperature(hour.temperature) - 10}
 			text-anchor="middle"
-			class="maximum-label">{Math.round(hour.temperature)}°</text
+			class="maximum-label">{hour.temperature}°</text
 		>
 	{/each}
 	{#each minima as hour (hour.time)}
@@ -256,7 +256,7 @@
 			x={x(hour.time)}
 			y={temperature(hour.temperature) + 20}
 			text-anchor="middle"
-			class="minimum-label">{Math.round(hour.temperature)}°</text
+			class="minimum-label">{hour.temperature}°</text
 		>
 	{/each}
 
