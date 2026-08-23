@@ -133,6 +133,21 @@
 		}).format(date);
 	}
 
+	function formatSunshineDuration(hours: number): string {
+		return new Intl.NumberFormat('it-IT', {
+			minimumFractionDigits: 1,
+			maximumFractionDigits: 1
+		}).format(hours);
+	}
+
+	function sunshineOpacity(hours: number): number {
+		const proportion = clamp(hours / 3, 0, 1);
+		if (proportion <= 2 / 3) return proportion * 0.36;
+
+		const nearFull = (proportion - 2 / 3) * 3;
+		return 0.24 + nearFull ** 2 * 0.36;
+	}
+
 	function handlePointerMove(event: PointerEvent) {
 		const svg = event.currentTarget as SVGSVGElement;
 		const bounds = svg.getBoundingClientRect();
@@ -177,7 +192,7 @@
 					width={barWidth}
 					height={plotBottom - margin.top}
 					fill="#facc15"
-					opacity={Math.min(1, Math.max(0, hour.sunshineDuration / 3)) * 0.2}
+					opacity={sunshineOpacity(hour.sunshineDuration)}
 				/>
 			{/each}
 		</g>
@@ -286,7 +301,12 @@
 		{@const hoverY = temperature(hovered.temperature)}
 		{@const temperatureBadgeX = clamp(hoverX + 9, margin.left, width - margin.right - 46)}
 		{@const temperatureBadgeY = clamp(hoverY - 30, margin.top, plotBottom - 22)}
-		{@const timeBadgeX = clamp(hoverX - 28, margin.left, width - margin.right - 56)}
+		{@const timeBadgeWidth = showSunshine ? 126 : 56}
+		{@const timeBadgeX = clamp(
+			hoverX - timeBadgeWidth / 2,
+			margin.left,
+			width - margin.right - timeBadgeWidth
+		)}
 		{@const rainBadgeY = clamp(precipitation(hovered.rainFall) - 10, margin.top, plotBottom - 20)}
 		<line x1={hoverX} x2={hoverX} y1={margin.top} y2={plotBottom} class="hover-line" />
 		<circle cx={hoverX} cy={hoverY} r="5" class="hover-point" />
@@ -300,8 +320,12 @@
 		</g>
 
 		<g class="hover-badge time-badge" transform={`translate(${timeBadgeX}, ${plotBottom + 11})`}>
-			<rect width="56" height="20" rx="5" />
-			<text x="28" y="14" text-anchor="middle">{formatHour(hovered.time)}</text>
+			<rect width={timeBadgeWidth} height="20" rx="5" />
+			<text x={timeBadgeWidth / 2} y="14" text-anchor="middle">
+				{formatHour(hovered.time)}{#if showSunshine}
+					· sole {formatSunshineDuration(hovered.sunshineDuration)} h
+				{/if}
+			</text>
 		</g>
 
 		<g
