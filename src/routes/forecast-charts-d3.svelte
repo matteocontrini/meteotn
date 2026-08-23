@@ -97,63 +97,74 @@
 {#if weekHours.length > 0}
 	<div class="mt-10 md:mt-12">
 		<section>
-			<div class="rounded-xl border border-slate-200">
-				<div class="plot-aligned pt-3">
-					<div class="grid" style:grid-template-columns={`repeat(${days.length}, minmax(0, 1fr))`}>
-						{#each days as day (day.date)}
-							<div class="min-w-0 overflow-hidden">
-								<div class="px-1 pb-1.5 text-center text-xs font-medium md:text-sm">
-									<span class="block w-full truncate">{formatDay(day.date)}</span>
-									<span class="block w-full truncate text-[11px] text-slate-500 sm:text-xs">
-										{day.dailyForecast.temperatureMinimum}° / {day.dailyForecast
-											.temperatureMaximum}°
-									</span>
-								</div>
-								<div
-									class="grid pb-1"
-									style:grid-template-columns={`repeat(${day.hourlyForecasts.length}, minmax(0, 1fr))`}
-								>
-									{#each day.hourlyForecasts as hour (hour.time)}
-										<div class="flex min-w-0 flex-col items-center" title={hourTitle(hour)}>
-											<img
-												src="https://meteo.report/images/icons/{getIcon(hour)}"
-												alt="Previsione delle {formatHour(hour.time)}"
-												class="aspect-square w-full max-w-7 object-contain"
-											/>
-											<span class="flex h-3 items-center justify-center">
-												{#if hour.windSpeed >= 10 || hour.windGust >= 40}
-													<i
-														aria-hidden="true"
-														class="inline-block leading-none font-bold not-italic {hour.windGust >=
-														80
-															? 'text-fuchsia-700'
-															: hour.windGust >= 60
-																? 'text-rose-600'
-																: hour.windGust >= 40
-																	? 'text-amber-600'
-																	: 'text-sky-600'}"
-														style:font-size={`${Math.min(12, 8 + hour.windSpeed / 5)}px`}
-														style:opacity={Math.min(1, 0.55 + hour.windSpeed / 40)}
-												style:transform={`rotate(${hour.windDirection + 180}deg)`}>↑</i
-													>
-												{/if}
+			<div class="overflow-hidden rounded-xl border border-slate-200">
+				<div
+					class="chart-scroll"
+					role="region"
+					aria-label="Previsioni grafiche; scorri orizzontalmente per vedere i giorni successivi"
+				>
+					<div class="chart-content">
+						<div class="plot-aligned pt-3">
+							<div
+								class="grid"
+								style:grid-template-columns={`repeat(${days.length}, minmax(0, 1fr))`}
+							>
+								{#each days as day (day.date)}
+									<div class="min-w-0 overflow-hidden">
+										<div class="px-1 pb-1.5 text-center text-xs font-medium md:text-sm">
+											<span class="block w-full truncate">{formatDay(day.date)}</span>
+											<span class="block w-full truncate text-[11px] text-slate-500 sm:text-xs">
+												{day.dailyForecast.temperatureMinimum}° / {day.dailyForecast
+													.temperatureMaximum}°
 											</span>
 										</div>
-									{/each}
-								</div>
+										<div
+											class="grid pb-1"
+											style:grid-template-columns={`repeat(${day.hourlyForecasts.length}, minmax(0, 1fr))`}
+										>
+											{#each day.hourlyForecasts as hour (hour.time)}
+												<div class="flex min-w-0 flex-col items-center" title={hourTitle(hour)}>
+													<img
+														src="https://meteo.report/images/icons/{getIcon(hour)}"
+														alt="Previsione delle {formatHour(hour.time)}"
+														class="aspect-square w-full max-w-7 object-contain"
+													/>
+													<span class="flex h-3 items-center justify-center">
+														{#if hour.windSpeed >= 10 || hour.windGust >= 40}
+															<i
+																aria-hidden="true"
+																class="inline-block leading-none font-bold not-italic {hour.windGust >=
+																80
+																	? 'text-fuchsia-700'
+																	: hour.windGust >= 60
+																		? 'text-rose-600'
+																		: hour.windGust >= 40
+																			? 'text-amber-600'
+																			: 'text-sky-600'}"
+																style:font-size={`${Math.min(12, 8 + hour.windSpeed / 5)}px`}
+																style:opacity={Math.min(1, 0.55 + hour.windSpeed / 40)}
+																style:transform={`rotate(${hour.windDirection + 180}deg)`}>↑</i
+															>
+														{/if}
+													</span>
+												</div>
+											{/each}
+										</div>
+									</div>
+								{/each}
 							</div>
-						{/each}
+						</div>
+						<WeatherChartD3
+							hours={weekHours}
+							dayBoundaries={boundaries}
+							{maxima}
+							{minima}
+							{showSunshine}
+							rainColors={originalPalette}
+							label="Temperatura e precipitazioni nei prossimi giorni"
+						/>
 					</div>
 				</div>
-				<WeatherChartD3
-					hours={weekHours}
-					dayBoundaries={boundaries}
-					{maxima}
-					{minima}
-					{showSunshine}
-					rainColors={originalPalette}
-					label="Temperatura e precipitazioni nei prossimi giorni"
-				/>
 			</div>
 		</section>
 
@@ -229,8 +240,25 @@
 {/if}
 
 <style>
+	.chart-scroll {
+		overflow-x: auto;
+		overscroll-behavior-inline: contain;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.chart-content {
+		width: 100%;
+	}
+
 	.plot-aligned {
 		padding-right: 5.4167%;
 		padding-left: 5.4167%;
+	}
+
+	@media (max-width: 639px) {
+		.chart-content {
+			/* 855 / 960 * 292 = 260px: keep the plot at a stable, readable height. */
+			min-width: 855px;
+		}
 	}
 </style>
