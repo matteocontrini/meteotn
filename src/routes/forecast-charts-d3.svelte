@@ -134,7 +134,7 @@
 																	: 'text-sky-600'}"
 														style:font-size={`${Math.min(12, 8 + hour.windSpeed / 5)}px`}
 														style:opacity={Math.min(1, 0.55 + hour.windSpeed / 40)}
-														style:transform={`rotate(${hour.windDirection}deg)`}>↑</i
+												style:transform={`rotate(${hour.windDirection + 180}deg)`}>↑</i
 													>
 												{/if}
 											</span>

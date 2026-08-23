@@ -304,7 +304,7 @@
 				<img
 					src="https://meteo.report/images/arrowup1.png"
 					alt="wind direction"
-					style="transform: rotate({hour.windDirection}deg);"
+					style="transform: rotate({hour.windDirection + 180}deg);"
 					class="mr-1 size-4"
 				/>
 				<span class="text-sm font-medium">{Math.round(hour.windSpeed)} km/h</span>
