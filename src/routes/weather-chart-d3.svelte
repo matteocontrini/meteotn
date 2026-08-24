@@ -162,196 +162,244 @@
 	}
 </script>
 
-<svg
-	bind:clientWidth={renderedWidth}
-	viewBox={`0 0 ${width} ${height}`}
-	role="img"
-	aria-label={label}
-	onpointermove={handlePointerMove}
-	onpointerleave={() => (hovered = null)}
->
-	<defs>
-		<linearGradient
-			id="temperature-gradient"
-			gradientUnits="userSpaceOnUse"
-			x1="0"
-			x2="0"
-			y1={plotBottom}
-			y2={margin.top}
-		>
-			<stop offset="0%" stop-color="#3b82f6" />
-			<stop offset="100%" stop-color="#ef4444" />
-		</linearGradient>
-	</defs>
-	{#if showSunshine}
-		<g class="sunshine-layer" aria-hidden="true">
-			{#each hours as hour (hour.time)}
-				<rect
-					x={x(hour.time)}
-					y={margin.top}
-					width={barWidth}
-					height={plotBottom - margin.top}
-					fill="#facc15"
-					opacity={sunshineOpacity(hour.sunshineDuration)}
-				/>
-			{/each}
-		</g>
-	{/if}
-
-	{#each temperatureTicks as tick (tick)}
-		{@const tickY = temperature(tick)}
-		<line x1={margin.left} x2={width - margin.right} y1={tickY} y2={tickY} class="axis-grid" />
-		<text x={margin.left - 8} y={tickY + 4} text-anchor="end" class="axis-number">{tick}°</text>
-	{/each}
-	{#each precipitationTicks as tick (tick)}
-		<text x={width - margin.right + 8} y={precipitation(tick) + 4} class="axis-number">{tick}</text>
-	{/each}
-
-	{#each rainSegments(maximumRain) as segment (segment.from)}
-		<rect
-			x={width - 20}
-			y={precipitation(segment.to)}
-			width="7"
-			height={precipitation(segment.from) - precipitation(segment.to)}
-			fill={segment.color}
-		/>
-	{/each}
-
-	{#each dayBoundaries as boundary (boundary)}
-		<line x1={x(boundary)} x2={x(boundary)} y1={margin.top} y2={plotBottom} class="day-divider" />
-	{/each}
-
-	{#each hours as hour (hour.time)}
-		{#if hour.rainProbability > 0}
-			<rect
-				x={x(hour.time)}
-				y={plotBottom + 3}
-				width={barWidth}
-				height="5"
-				opacity={0.15 + (hour.rainProbability / 100) * 0.85}
-				class="probability-bar"
+<div class="chart">
+	<svg
+		bind:clientWidth={renderedWidth}
+		viewBox={`0 0 ${width} ${height}`}
+		role="img"
+		aria-label={label}
+		onpointermove={handlePointerMove}
+		onpointerleave={() => (hovered = null)}
+	>
+		<defs>
+			<linearGradient
+				id="temperature-gradient"
+				gradientUnits="userSpaceOnUse"
+				x1="0"
+				x2="0"
+				y1={plotBottom}
+				y2={margin.top}
 			>
-				<title>Probabilità di precipitazioni: {hour.rainProbability}%</title>
-			</rect>
+				<stop offset="0%" stop-color="#3b82f6" />
+				<stop offset="100%" stop-color="#ef4444" />
+			</linearGradient>
+		</defs>
+		{#if showSunshine}
+			<g class="sunshine-layer" aria-hidden="true">
+				{#each hours as hour (hour.time)}
+					<rect
+						x={x(hour.time)}
+						y={margin.top}
+						width={barWidth}
+						height={plotBottom - margin.top}
+						fill="#facc15"
+						opacity={sunshineOpacity(hour.sunshineDuration)}
+					/>
+				{/each}
+			</g>
 		{/if}
-	{/each}
 
-	{#each hours as hour (hour.time)}
-		<g>
-			<title
-				>{formatHour(hour.time)} · {hour.rainFall} mm · probabilità {hour.rainProbability}%</title
-			>
-			{#each rainSegments(hour.rainFall) as segment (segment.from)}
+		{#each temperatureTicks as tick (tick)}
+			{@const tickY = temperature(tick)}
+			<line x1={margin.left} x2={width - margin.right} y1={tickY} y2={tickY} class="axis-grid" />
+		{/each}
+		{#each dayBoundaries as boundary (boundary)}
+			<line x1={x(boundary)} x2={x(boundary)} y1={margin.top} y2={plotBottom} class="day-divider" />
+		{/each}
+
+		{#each hours as hour (hour.time)}
+			{#if hour.rainProbability > 0}
 				<rect
 					x={x(hour.time)}
-					y={precipitation(segment.to)}
+					y={plotBottom + 3}
 					width={barWidth}
-					height={precipitation(segment.from) - precipitation(segment.to)}
-					fill={segment.color}
-					class="rain"
-				/>
-			{/each}
-		</g>
-	{/each}
+					height="5"
+					opacity={0.15 + (hour.rainProbability / 100) * 0.85}
+					class="probability-bar"
+				>
+					<title>Probabilità di precipitazioni: {hour.rainProbability}%</title>
+				</rect>
+			{/if}
+		{/each}
 
-	<path d={temperatureLine} class="temperature-line" stroke="url(#temperature-gradient)" />
+		{#each hours as hour (hour.time)}
+			<g>
+				<title
+					>{formatHour(hour.time)} · {hour.rainFall} mm · probabilità {hour.rainProbability}%</title
+				>
+				{#each rainSegments(hour.rainFall) as segment (segment.from)}
+					<rect
+						x={x(hour.time)}
+						y={precipitation(segment.to)}
+						width={barWidth}
+						height={precipitation(segment.from) - precipitation(segment.to)}
+						fill={segment.color}
+						class="rain"
+					/>
+				{/each}
+			</g>
+		{/each}
 
-	{#each maxima as hour (hour.time)}
-		<circle cx={x(hour.time)} cy={temperature(hour.temperature)} r="5" class="maximum-point" />
-		<text
-			x={x(hour.time)}
-			y={temperature(hour.temperature) - 10}
-			text-anchor="middle"
-			class="maximum-label">{hour.temperature}°</text
-		>
-	{/each}
-	{#each minima as hour (hour.time)}
-		<circle cx={x(hour.time)} cy={temperature(hour.temperature)} r="5" class="minimum-point" />
-		<text
-			x={x(hour.time)}
-			y={temperature(hour.temperature) + 20}
-			text-anchor="middle"
-			class="minimum-label">{hour.temperature}°</text
-		>
-	{/each}
+		<path d={temperatureLine} class="temperature-line" stroke="url(#temperature-gradient)" />
 
-	{#if nowX !== null}
-		<line x1={nowX} x2={nowX} y1={margin.top} y2={plotBottom} class="now-line" />
-		<text x={nowX + 6} y={margin.top + 12} class="now-label">ora</text>
-	{/if}
+		{#each maxima as hour (hour.time)}
+			<circle cx={x(hour.time)} cy={temperature(hour.temperature)} r="5" class="maximum-point" />
+			<text
+				x={x(hour.time)}
+				y={temperature(hour.temperature) - 10}
+				text-anchor="middle"
+				class="maximum-label">{hour.temperature}°</text
+			>
+		{/each}
+		{#each minima as hour (hour.time)}
+			<circle cx={x(hour.time)} cy={temperature(hour.temperature)} r="5" class="minimum-point" />
+			<text
+				x={x(hour.time)}
+				y={temperature(hour.temperature) + 20}
+				text-anchor="middle"
+				class="minimum-label">{hour.temperature}°</text
+			>
+		{/each}
 
-	<line
-		x1={margin.left}
-		x2={width - margin.right}
-		y1={plotBottom}
-		y2={plotBottom}
-		class="baseline"
-	/>
-	{#each timeTicks as tick (tick)}
-		<line x1={x(tick)} x2={x(tick)} y1={plotBottom + 10} y2={plotBottom + 14} class="time-tick" />
-		<text x={x(tick)} y={plotBottom + 28} text-anchor="middle" class="time-tick-label">
-			{formatHour(tick)}
-		</text>
-	{/each}
-	<text x={margin.left - 8} y={unitY} text-anchor="end" class="temperature-unit">°C</text>
-	<text x={width - 12} y={unitY} text-anchor="end" class="rain-unit">mm/3h</text>
+		{#if nowX !== null}
+			<line x1={nowX} x2={nowX} y1={margin.top} y2={plotBottom} class="now-line" />
+			<text x={nowX + 6} y={margin.top + 12} class="now-label">ora</text>
+		{/if}
 
-	{#if hovered}
-		{@const hoverX = x(hovered.time)}
-		{@const hoverY = temperature(hovered.temperature)}
-		{@const temperatureBadgeX = clamp(hoverX + 9, margin.left, width - margin.right - 46)}
-		{@const temperatureBadgeY = clamp(hoverY - 30, margin.top, plotBottom - 22)}
-		{@const timeBadgeWidth = showSunshine ? 126 : 56}
-		{@const timeBadgeX = clamp(
-			hoverX - timeBadgeWidth / 2,
-			margin.left,
-			width - margin.right - timeBadgeWidth
-		)}
-		{@const rainBadgeY = clamp(precipitation(hovered.rainFall) - 10, margin.top, plotBottom - 20)}
-		<line x1={hoverX} x2={hoverX} y1={margin.top} y2={plotBottom} class="hover-line" />
-		<circle cx={hoverX} cy={hoverY} r="5" class="hover-point" />
-
-		<g
-			class="hover-badge temperature-badge"
-			transform={`translate(${temperatureBadgeX}, ${temperatureBadgeY})`}
-		>
-			<rect width="46" height="22" rx="5" />
-			<text x="23" y="15" text-anchor="middle">{hovered.temperature}°</text>
-		</g>
-
-		<g class="hover-badge time-badge" transform={`translate(${timeBadgeX}, ${plotBottom + 11})`}>
-			<rect width={timeBadgeWidth} height="20" rx="5" />
-			<text x={timeBadgeWidth / 2} y="14" text-anchor="middle">
-				{formatHour(hovered.time)}{#if showSunshine}
-					· sole {formatSunshineDuration(hovered.sunshineDuration)} h
-				{/if}
+		<line
+			x1={margin.left}
+			x2={width - margin.right}
+			y1={plotBottom}
+			y2={plotBottom}
+			class="baseline"
+		/>
+		{#each timeTicks as tick (tick)}
+			<line x1={x(tick)} x2={x(tick)} y1={plotBottom + 10} y2={plotBottom + 14} class="time-tick" />
+			<text x={x(tick)} y={plotBottom + 28} text-anchor="middle" class="time-tick-label">
+				{formatHour(tick)}
 			</text>
-		</g>
+		{/each}
+		{#if hovered}
+			{@const hoverX = x(hovered.time)}
+			{@const hoverY = temperature(hovered.temperature)}
+			{@const temperatureBadgeX = clamp(hoverX + 9, margin.left, width - margin.right - 46)}
+			{@const temperatureBadgeY = clamp(hoverY - 30, margin.top, plotBottom - 22)}
+			{@const timeBadgeWidth = showSunshine ? 126 : 56}
+			{@const timeBadgeX = clamp(
+				hoverX - timeBadgeWidth / 2,
+				margin.left,
+				width - margin.right - timeBadgeWidth
+			)}
+			<line x1={hoverX} x2={hoverX} y1={margin.top} y2={plotBottom} class="hover-line" />
+			<circle cx={hoverX} cy={hoverY} r="5" class="hover-point" />
 
-		<g
-			class="hover-badge rain-badge"
-			transform={`translate(${width - margin.right + 4}, ${rainBadgeY})`}
-		>
-			<rect width="44" height="20" rx="5" />
-			<text x="22" y="14" text-anchor="middle">{hovered.rainFall}</text>
-		</g>
-	{/if}
+			<g
+				class="hover-badge temperature-badge"
+				transform={`translate(${temperatureBadgeX}, ${temperatureBadgeY})`}
+			>
+				<rect width="46" height="22" rx="5" />
+				<text x="23" y="15" text-anchor="middle">{hovered.temperature}°</text>
+			</g>
 
-	<rect
-		x={margin.left}
-		y={margin.top}
-		width={plotWidth}
-		height={plotBottom - margin.top}
-		fill="transparent"
-		class="hit-area"
-	/>
-</svg>
+			<g class="hover-badge time-badge" transform={`translate(${timeBadgeX}, ${plotBottom + 11})`}>
+				<rect width={timeBadgeWidth} height="20" rx="5" />
+				<text x={timeBadgeWidth / 2} y="14" text-anchor="middle">
+					{formatHour(hovered.time)}{#if showSunshine}
+						· sole {formatSunshineDuration(hovered.sunshineDuration)} h
+					{/if}
+				</text>
+			</g>
+		{/if}
+
+		<rect
+			x={margin.left}
+			y={margin.top}
+			width={plotWidth}
+			height={plotBottom - margin.top}
+			fill="transparent"
+			class="hit-area"
+		/>
+	</svg>
+
+	<svg class="temperature-axis" viewBox={`0 0 ${margin.left} ${height}`} aria-hidden="true">
+		<rect width={margin.left} {height} class="axis-background" />
+		{#each temperatureTicks as tick (tick)}
+			{@const tickY = temperature(tick)}
+			<text x={margin.left - 8} y={tickY + 4} text-anchor="end" class="axis-number">{tick}°</text>
+		{/each}
+		<text x={margin.left - 8} y={unitY} text-anchor="end" class="temperature-unit">°C</text>
+	</svg>
+
+	<svg
+		class="rain-axis"
+		viewBox={`${width - margin.right} 0 ${margin.right} ${height}`}
+		aria-hidden="true"
+	>
+		<rect x={width - margin.right} width={margin.right} {height} class="axis-background" />
+		{#each precipitationTicks as tick (tick)}
+			<text x={width - margin.right + 8} y={precipitation(tick) + 4} class="axis-number"
+				>{tick}</text
+			>
+		{/each}
+		{#each rainSegments(maximumRain) as segment (segment.from)}
+			<rect
+				x={width - 20}
+				y={precipitation(segment.to)}
+				width="7"
+				height={precipitation(segment.from) - precipitation(segment.to)}
+				fill={segment.color}
+			/>
+		{/each}
+		<text x={width - 8} y={unitY} text-anchor="end" class="rain-unit">mm/3h</text>
+		{#if hovered}
+			{@const rainBadgeY = clamp(precipitation(hovered.rainFall) - 10, margin.top, plotBottom - 20)}
+			<g
+				class="hover-badge rain-badge"
+				transform={`translate(${width - margin.right + 4}, ${rainBadgeY})`}
+			>
+				<rect width="44" height="20" rx="5" />
+				<text x="22" y="14" text-anchor="middle">{hovered.rainFall}</text>
+			</g>
+		{/if}
+	</svg>
+</div>
 
 <style>
 	svg {
 		display: block;
 		width: 100%;
 		height: auto;
+	}
+
+	.chart {
+		display: grid;
+	}
+
+	.chart > svg {
+		grid-area: 1 / 1;
+	}
+
+	.temperature-axis,
+	.rain-axis {
+		position: sticky;
+		width: 5.4167%;
+		height: 100%;
+		pointer-events: none;
+	}
+
+	.temperature-axis {
+		left: 0;
+		justify-self: start;
+	}
+
+	.rain-axis {
+		right: 0;
+		justify-self: end;
+	}
+
+	.axis-background {
+		fill: white;
+		fill-opacity: 0.96;
 	}
 
 	.axis-grid {
