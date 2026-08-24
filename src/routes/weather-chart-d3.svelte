@@ -26,6 +26,8 @@
 	}: Props = $props();
 	let hovered = $state<HourlyForecast | null>(null);
 	let renderedWidth = $state(960);
+	let svgElement: SVGSVGElement;
+	let touchActive = false;
 
 	const width = 960;
 	const height = 292;
@@ -148,13 +150,44 @@
 		return 0.24 + nearFull ** 2 * 0.36;
 	}
 
-	function handlePointerMove(event: PointerEvent) {
-		const svg = event.currentTarget as SVGSVGElement;
-		const bounds = svg.getBoundingClientRect();
-		const svgX = ((event.clientX - bounds.left) / bounds.width) * width;
+	function hourAtClientX(clientX: number): HourlyForecast | null {
+		const bounds = svgElement.getBoundingClientRect();
+		const svgX = ((clientX - bounds.left) / bounds.width) * width;
 		const targetTime = x.invert(svgX);
 		const index = bisector((hour: HourlyForecast) => hour.time).center(hours, targetTime);
-		hovered = hours[index] ?? null;
+		return hours[index] ?? null;
+	}
+
+	function hourAtPointer(event: PointerEvent): HourlyForecast | null {
+		return hourAtClientX(event.clientX);
+	}
+
+	function handlePointerDown(event: PointerEvent) {
+		if (event.pointerType === 'touch') touchActive = true;
+		hovered = hourAtPointer(event);
+	}
+
+	function handlePointerMove(event: PointerEvent) {
+		// A touch move usually means the user is scrolling the forecast horizontally.
+		if (event.pointerType !== 'touch') hovered = hourAtPointer(event);
+	}
+
+	function handlePointerLeave(event: PointerEvent) {
+		if (event.pointerType !== 'touch') hovered = null;
+	}
+
+	function handlePointerEnd(event: PointerEvent) {
+		if (event.pointerType === 'touch') endTouch();
+	}
+
+	function handleTouchMove(event: TouchEvent) {
+		const touch = event.touches[0];
+		if (touchActive && touch) hovered = hourAtClientX(touch.clientX);
+	}
+
+	function endTouch() {
+		touchActive = false;
+		hovered = null;
 	}
 
 	function clamp(value: number, minimum: number, maximum: number): number {
@@ -162,14 +195,19 @@
 	}
 </script>
 
+<svelte:window ontouchmove={handleTouchMove} ontouchend={endTouch} ontouchcancel={endTouch} />
+
 <div class="chart">
 	<svg
+		bind:this={svgElement}
 		bind:clientWidth={renderedWidth}
 		viewBox={`0 0 ${width} ${height}`}
 		role="img"
 		aria-label={label}
+		onpointerdown={handlePointerDown}
 		onpointermove={handlePointerMove}
-		onpointerleave={() => (hovered = null)}
+		onpointerup={handlePointerEnd}
+		onpointerleave={handlePointerLeave}
 	>
 		<defs>
 			<linearGradient
