@@ -479,9 +479,12 @@
 		stroke-width: 2;
 	}
 
-	.maximum-point,
-	.hover-point {
+	.maximum-point {
 		fill: #ef4444;
+	}
+
+	.hover-point {
+		fill: url('#temperature-gradient');
 	}
 
 	.minimum-point {
