@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { invalidateAll } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import Forecast from '../forecast.svelte';
 	import TownSearch from '../town-search.svelte';
@@ -17,6 +18,15 @@
 		if (town) {
 			addRecentTown(town);
 		}
+
+		const refresh = () => void invalidateAll();
+		const interval = window.setInterval(refresh, 15 * 60 * 1000);
+		window.addEventListener('focus', refresh);
+
+		return () => {
+			window.clearInterval(interval);
+			window.removeEventListener('focus', refresh);
+		};
 	});
 </script>
 
