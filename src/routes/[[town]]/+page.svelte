@@ -86,17 +86,17 @@
 	{/if}
 
 	<div class="flex mt-8 bg-slate-50 px-6 py-5 rounded-xl gap-6 flex-wrap justify-center">
-		<iframe src="https://meteo.report/precipitation_widget/?mode=l"
+		<iframe src="https://meteo.report/it/precipitation_widget/?mode=l"
 						width="350"
-						height="560"
+						height="570"
 						frameborder="0"
 						title="Radar precipitazioni"
 		>
 		</iframe>
 
-		<iframe src="https://meteo.report/model_widget/?mode=l"
+		<iframe src="https://meteo.report/it/model_widget/?mode=l"
 						width="350"
-						height="560"
+						height="550"
 						frameborder="0"
 						title="Previsione precipitazioni"
 		>
