@@ -9,6 +9,7 @@ import {
 	type DayData
 } from '$lib/api';
 import { createTownSlug } from '$lib/slug';
+import * as logger from '$lib/server/logger';
 import { error } from '@sveltejs/kit';
 
 let iconsCache: IconMappings | null = null;
@@ -33,7 +34,7 @@ export const load = async ({ params }) => {
 	const town = townsCache.find((town) => town.slug === slug);
 
 	if (!town) {
-		console.log(`Town with slug "${slug}" not found.`);
+		logger.warn(`Town with slug "${slug}" not found.`);
 		error(404);
 	}
 
