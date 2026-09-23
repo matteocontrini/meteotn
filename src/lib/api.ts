@@ -129,14 +129,14 @@ export type DayData = {
 	bulletin?: Bulletin;
 };
 
-export async function fetchForecastData(venueId: string) {
+export async function fetchForecasts(venueId: string) {
 	const url = `https://meteo.report/var/data/forecasts/${venueId}.json`;
 	const [res, timeMappings] = await Promise.all([fetch(url), fetchTimeIdMappings()]);
 	const data = await res.json();
 
 	const start = parseLocalDateTime(data.start);
 
-	return Object.keys(data['1440'] as Record<string, ApiDailyForecastEntry>).map(
+	const daily = Object.keys(data['1440'] as Record<string, ApiDailyForecastEntry>).map(
 		(key, index) =>
 			({
 				date: timeMappings.daily[Number(key)]
@@ -147,16 +147,7 @@ export async function fetchForecastData(venueId: string) {
 				temperatureMaximum: data['1440'][key].temperature_maximum
 			}) as DayForecast
 	);
-}
-
-export async function fetchHourlyForecastData(venueId: string) {
-	const url = `https://meteo.report/var/data/forecasts/${venueId}.json`;
-	const [res, timeMappings] = await Promise.all([fetch(url), fetchTimeIdMappings()]);
-	const data = await res.json();
-
-	const start = parseLocalDateTime(data.start);
-
-	return Object.keys(data['180'] as Record<string, ApiHourlyForecastEntry>).map(
+	const hourly = Object.keys(data['180'] as Record<string, ApiHourlyForecastEntry>).map(
 		(key, index) =>
 			({
 				time: timeMappings.hourly[Number(key)]
@@ -175,6 +166,8 @@ export async function fetchHourlyForecastData(venueId: string) {
 				freezingLevel: data['180'][key].freezing_level
 			}) as HourlyForecast
 	);
+
+	return { daily, hourly };
 }
 
 type ApiVenueEntry = {

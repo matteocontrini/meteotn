@@ -1,6 +1,5 @@
 import {
-	fetchForecastData,
-	fetchHourlyForecastData,
+	fetchForecasts,
 	fetchIcons,
 	type IconMappings,
 	fetchTowns,
@@ -23,24 +22,19 @@ export const load = async ({ params }) => {
 
 	slug = createTownSlug(slug);
 
-	if (!iconsCache) {
-		iconsCache = await fetchIcons();
-	}
+	const [icons, towns] = await Promise.all([iconsCache ?? fetchIcons(), townsCache ?? fetchTowns()]);
+	iconsCache = icons;
+	townsCache = towns;
 
-	if (!townsCache) {
-		townsCache = await fetchTowns();
-	}
-
-	const town = townsCache.find((town) => town.slug === slug);
+	const town = towns.find((town) => town.slug === slug);
 
 	if (!town) {
 		logger.warn(`Town with slug "${slug}" not found.`);
 		error(404);
 	}
 
-	const [forecast, hourlyForecast, bulletins] = await Promise.all([
-		fetchForecastData(town.id),
-		fetchHourlyForecastData(town.id),
+	const [{ daily: forecast, hourly: hourlyForecast }, bulletins] = await Promise.all([
+		fetchForecasts(town.id),
 		fetchBulletins()
 	]);
 
@@ -79,8 +73,8 @@ export const load = async ({ params }) => {
 
 	return {
 		town,
-		towns: townsCache,
-		icons: iconsCache,
+		towns,
+		icons,
 		days
 	};
 };
